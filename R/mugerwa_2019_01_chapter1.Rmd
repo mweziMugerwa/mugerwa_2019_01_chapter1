@@ -1,0 +1,873 @@
+---
+title: "Chapter 1: Global disparity of research allocation and the 2020 Aichi biodiversity targets: a two decade report"
+description: "A global assessment of whether biodiversity research allocation in the last two decades has tracked priority
+    areas for attaining the 2020 Aichi biodiversity Targets"
+author: 
+name: "Mwezi 'Badru' Mugerwa"
+affiliation: "Leibniz Institute for Zoo and Wildlife Research"
+orcid_id: "0000-0000-0000-0000"
+affiliation_url: "https://izw-berlin.de/en/Mwezi Mugerwa"
+date: "23/04/2021"
+output: html_document
+---
+
+# Chunk options
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
+                      fig.with=9, fig.height=6,dpi=300,
+                      retina=1, fig.showtext=TRUE)
+```
+
+* ** Research questions:
+*1. What are the global patterns of biodiversity research allocation? *
+*2. What are the key predictors of global biodiversity research allocation? *
+*3. What is the disparity in global biodiversity research allocation? *
+
+* ** Study area:**
+*Global *
+
+* ** Data:**
+*Research locations' Lat/Long data + global environmental (predictor) remote sensed datasets.  *
+
+# Setup
+```{r cleaning memory}
+#rm(list=ls())
+#gc()
+```
+
+# Setup
+```{r package installation}
+# install.packages("maps")
+# install.packages("classInt")
+# install.packages("ggmosaic")
+# install.packages("sf")
+# install.packages("fasterize")
+# install.packages("tmap", dependencies = TRUE)
+# install.packages("XML")
+# install.packages("pacman")
+# install.packages("rdrop2")
+# install.packages("repmis")
+# install.packages("rworldmap")
+# install.packages("rworldxtra")
+# install.packages ("plyr")
+# install.packages ("lme4")
+# install.packages ("cartogram")
+# install.packages ("dismo")
+# install.packages("readxl")
+# install.packages("raster")
+# install.packages("rJava")
+# install.packages("rgdal")
+# install.packages("tidyverse")
+# install.packages("ggplot2")
+# install.packages("ggplots")
+# install.packages("rgeos")
+# install.packages("scales")
+# install.packages("dplyr")
+# install.packages("ENMeval")
+# install.packages("sp")
+# install.packages ("maptools")
+# install.packages ("mapview")
+# install.packages ("leaflet")
+# install.packages ("broom")
+# install.packages(c("JGR","Deducer","DeducerExtras"))
+# install.packages("devtools")
+# devtools::install_github("EcoDynIZW/d6")
+# install.packages("rmarkdown")
+# install.packages("Hmisc")
+# install.packages("normImage")
+# install.packages ("ppcor")
+# install.packages("corrr")
+# install.packages("GGally")
+# install.packages("viridis")
+# install.packages("ggcorrplot")
+# install.packages("cowplot")
+# install.packages ("ggpubr")
+# install.packages ("reshape")
+# webshot::install_phantomjs()
+#install.packages("patchwork")
+```
+
+# Setup
+```{r package loading}
+# find package locations
+# find.package("plyr")
+
+# citing packages
+# citation("ggplot2")
+
+# find folder to put the maxent.jar
+# system.file("java", package="dismo")
+
+# run to check if the maxent.jar file is available, in the right folder
+jar <- paste(system.file(package="dismo"), "/java/maxent.jar", sep='')
+
+# run these before loading dismo and rJava. maxent needs them
+options(java.parameters = "-Xmx2g" )
+Sys.setenv(NOAWT=TRUE)
+
+# now load packages
+library(classInt)
+library(reshape)
+library(ggmosaic)
+library(dismo)
+library(rgdal)
+library(ENMeval)
+library(fasterize)
+library(devtools)
+library(rmarkdown)
+library (geosphere)
+library (RColorBrewer)
+library(ppcor)
+library(corrr)
+library(GGally)
+library(SDMtune)
+library(d6)
+library(maps)
+library(sp)
+library(raster)
+library(rJava)
+library(rgeos)
+library(rgdal)
+library(sf)
+library(scales)
+library(maptools)
+library(mapview)
+library(leaflet)
+library(broom)
+library(XML)
+library(tmap)
+library(rworldmap)
+library(rworldxtra)
+library(dplyr)
+library(plyr)
+library(readxl)
+library(ggplot2)
+library(cartogram)
+library(Hmisc)
+library(tidyverse) 
+library(ggpubr)
+library(patchwork)
+library(viridis)
+library(cowplot)
+library(stars)
+library(patchwork)
+library(ggcorrplot)
+library(reshape2)
+
+```
+
+# Setup
+```{r functions}
+# Projections
+crs_equal_earth <- 8857 # Equal Earth 
+crs_latlon <- 4326 # LatLong
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+# Raincloud plots
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+# Theme for use for figures
+science_theme = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.85,
+0.7), text = element_text(size = 14))
+
+science_theme_facets = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.80,0.40), text = element_text(size = 24))
+
+science_theme_distribution = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line = element_line(size = 0.7, color = "black"), text = element_text(size = 22))
+
+science_theme_distribution_diparity = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line = element_line(size = 0.7, color = "black"), legend.position="top",text = element_text(size = 22))
+
+science_theme_maps = theme(panel.grid.major = element_line(#size = 0.5, 
+  color = "grey"),
+  axis.line = element_line(size = 0.7, color = "black"), 
+  #legend.position = c(0.15,0.3), 
+  #legend.position = "bottom",
+  #legend.key.height = unit(0.4, "cm"),
+  #legend.key.width = unit(2, "cm"),
+  text = element_text(size = 20),
+  #legend.justification = c(-140, -10),
+  plot.margin = unit(x = c(0.5,0.2,0,0.5), units = "cm"),
+  panel.border = element_rect(color = "grey20")
+)
+
+science_theme_fig1 = theme(panel.grid.major = element_line(#size = 0.5, 
+                                                           color = "grey"),
+                          # axis.line = element_line(size = 0.7, color = "black"), 
+                           legend.position = c(0.7,0.8), 
+                           text = element_text(size = 20),
+                          plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
+                          # panel.border = element_rect(color = "grey90")
+                          )
+
+science_theme_fig1b = theme(panel.grid.major = element_line(#size = 0.5, 
+                                                           color = "grey"),
+                          # axis.line = element_line(size = 0.7, color = "black"), 
+                           legend.position = c(0.5,0.8), 
+                           text = element_text(size = 20),
+                          plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
+                          # panel.border = element_rect(color = "grey90")
+                          )
+
+science_theme_fig2b = theme(panel.grid.major = element_line(#size = 0.5, 
+  color = "grey"),
+  # axis.line = element_line(size = 0.7, color = "black"), 
+  legend.position = c(0.10,0.3), 
+  text = element_text(size = 18),
+  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
+  # panel.border = element_rect(color = "grey90")
+)
+
+science_theme_fig2c = theme(panel.grid.major = element_line(#size = 0.5, 
+  color = "grey"),
+  # axis.line = element_line(size = 0.7, color = "black"), 
+  #legend.position = c(0.10,0.3), 
+  text = element_text(size = 20),
+  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
+  # panel.border = element_rect(color = "grey90")
+)
+
+science_theme_facets = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+                             axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.80,0.40), text = element_text(size = 24))
+
+science_theme_distribution = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+axis.line = element_line(size = 0.7, color = "black"), text = element_text(size = 22))
+
+# More Fig themes
+plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
+ctry_border_size <- 0.5
+ctry_border_color1 <- "grey60"
+ctry_border_color2 <- "grey25"
+study_point_size <- 1
+legend.bg <- element_rect(fill = rgb(1,1,1,0.2))
+axis.text.size <- 16
+legend.text.size <- 14
+fig2_bar_color <- "grey65"
+fig2_line_color <- "grey20"
+
+science_theme_fig1b = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.5,0.8), text = element_text(size = 14))
+
+# function to normalize rasters
+normalizeRaster <- function(x){
+  out <- (x - cellStats(x, min)) / (cellStats(x, max) - cellStats(x, min))  
+  return(out)
+}
+
+# Bivariate maps
+# sourve: https://gist.github.com/scbrown86/2779137a9378df7b60afd23e0c45c188
+
+# The function that produces the colour matrix
+colmat <- function(nquantiles = 3, upperleft = "#0096EB", upperright = "#820050", 
+                   bottomleft = "#BEBEBE", bottomright = "#FFE60F",
+                   xlab = "x label", ylab = "y label", plotLeg = TRUE,
+                   saveLeg = TRUE) {
+  require(dplyr)
+  require(tidyr)
+  require(ggplot2)
+  require(magrittr)
+  require(classInt)
+  
+  my.data <- seq(0, 1, .01)
+  
+  # divide range from 0-1 into nquantiles
+  # Default uses terciles (Lucchesi and Wikle [2017] doi: 10.1002/sta4.150)
+  my.class <- classInt::classIntervals(my.data,
+                                       n = nquantiles,
+                                       style = "quantile" )
+  # interpolate colors between the corners along both axes (returns 101 values irrespective of the number of intervals)
+  my.pal.1 <- findColours(my.class, c(upperleft, bottomleft))
+  my.pal.2 <- findColours(my.class, c(upperright, bottomright))
+  
+  # create empty color matrix
+  col.matrix <- matrix(nrow = 101, ncol = 101, NA)
+  
+  # loop over all rows and assign interpolated colors to each cell
+  for (i in 1:101) {
+    my.col <- c(paste(my.pal.1[i]), paste(my.pal.2[i]))
+    col.matrix[102 - i, ] <- findColours(my.class, my.col)
+  }
+  
+  col.matrix.plot <- col.matrix %>%
+    as.data.frame(.) %>% 
+    mutate("Y" = row_number()) %>%
+    mutate_at(.tbl = ., .vars = vars(starts_with("V")), .funs = list(as.character)) %>% 
+    pivot_longer(data = ., cols = -Y, names_to = "X", values_to = "HEXCode") %>% 
+    mutate("X" = as.integer(sub("V", "", .$X))) %>%
+    distinct(as.factor(HEXCode), .keep_all = TRUE) %>%
+    mutate(Y = rev(.$Y)) %>% 
+    dplyr::select(-c(4)) %>%
+    mutate("Y" = rep(seq(from = 1, to = nquantiles, by = 1), each = nquantiles),
+           "X" = rep(seq(from = 1, to = nquantiles, by = 1), times = nquantiles)) %>%
+    mutate("UID" = row_number())
+  
+  # Use plotLeg if you want a preview of the legend
+  if (plotLeg) {
+    p <- ggplot(col.matrix.plot, aes(X, Y, fill = HEXCode)) +
+      geom_raster() +
+      scale_fill_identity() +
+      coord_equal(expand = FALSE) +
+      theme_void() +
+      theme(aspect.ratio = 1,
+            axis.title = element_text(size = 12, colour = "black",hjust = 0.5, 
+                                      vjust = 1),
+            axis.title.y = element_text(angle = 90, hjust = 0.5)) +
+      xlab(bquote(.(xlab) ~  symbol("\256"))) +
+      ylab(bquote(.(ylab) ~  symbol("\256")))
+    print(p)
+    assign(
+      x = "BivLegend",
+      value = p,
+      pos = .GlobalEnv
+    )
+  }
+  # Use saveLeg if you want to save a copy of the legend
+  if (saveLeg) {
+    ggsave(filename = "bivLegend.pdf", plot = p, device = "pdf",
+           path = "./", width = 4, height = 4, units = "in",
+           dpi = 300)
+  }
+  
+  # create sequence from 0 to 100, equally spaced
+  seqs <- seq(0, 100, (100 / nquantiles))
+  
+  # replace 1st value (0) with 1
+  seqs[1] <- 1
+  
+  # subset the color matrix to the colors at the breakpoints
+  col.matrix <- col.matrix[c(seqs), c(seqs)]
+}
+
+# Function to assign colour-codes to raster data
+# As before, by default assign tercile breaks
+bivariate.map <- function(rasterx, rastery, colormatrix = col.matrix,
+                          nquantiles = 3, export.colour.matrix = TRUE,
+                          outname = paste0("colMatrix_rasValues", names(rasterx))) {
+  # export.colour.matrix will export a data.frame of rastervalues and RGB codes 
+  # to the global environment outname defines the name of the data.frame
+  
+  # extract raster values of first raster
+  quanmean <- getValues(rasterx)
+  
+  # make data frame containing raster values and a placeholder for the quantile group
+  temp <- data.frame(quanmean, quantile = rep(NA, length(quanmean)))
+  
+  # calculate quantile breaks of the raster values (1 more than nquantiles)
+  brks <- with(temp, quantile(temp,
+                              na.rm = TRUE,
+                              probs = c(seq(0, 1, 1 / nquantiles))
+  ))
+  ## Add (very) small amount of noise to all but the first break
+  ## https://stackoverflow.com/a/19846365/1710632
+  #JN: Didn't check why this would be necessary
+  brks[-1] <- brks[-1] + seq_along(brks[-1]) * .Machine$double.eps
+  
+  # assign quantile group to each raster value (group 1 is omitted, so for 3 quantiles the values are 2,3,4)
+  r1 <- within(temp, quantile <- cut(quanmean,
+                                     breaks = brks,
+                                     labels = 2:length(brks),
+                                     include.lowest = TRUE
+  ))
+  quantr <- data.frame(r1[, 2])
+  
+  # same for raster 2
+  quanvar <- getValues(rastery)
+  temp <- data.frame(quanvar, quantile = rep(NA, length(quanvar)))
+  brks <- with(temp, quantile(temp,
+                              na.rm = TRUE,
+                              probs = c(seq(0, 1, 1 / nquantiles))
+  ))
+  brks[-1] <- brks[-1] + seq_along(brks[-1]) * .Machine$double.eps
+  r2 <- within(temp, quantile <- cut(quanvar,
+                                     breaks = brks,
+                                     labels = 2:length(brks),
+                                     include.lowest = TRUE
+  ))
+  quantr2 <- data.frame(r2[, 2])
+  
+  # define function that converts factor labels to numeric
+  as.numeric.factor <- function(x) {
+    as.numeric(levels(x))[x]
+  }
+  
+  
+  col.matrix2 <- colormatrix
+  
+  # remove 1st row of color matrix (it is identical to 2nd row)
+  # nevertheless 1st column = 2nd column
+  cn <- unique(colormatrix)
+  
+  # loop over all cells of the original color matrix
+  # if the color is NA, replace cell with 1, otherwise the the first match of the color i in cn
+  # I don't understand why. In my tests with 5 breaks it's always no
+  for (i in 1:length(col.matrix2)) {
+    ifelse(is.na(col.matrix2[i]), 
+           col.matrix2[i] <- 1,
+           col.matrix2[i] <- which(col.matrix2[i] == cn)[1]
+    )
+  }
+  # Export the colour.matrix to data.frame()
+  if (export.colour.matrix) {
+    # create a dataframe of colours corresponding to raster values
+    exportCols <- as.data.frame(cbind(
+      as.vector(col.matrix2), as.vector(colormatrix),
+      t(col2rgb(as.vector(colormatrix)))
+    ))
+    # rename columns of data.frame()
+    colnames(exportCols)[1:2] <- c("rasValue", "HEX")
+    # Export to the global environment
+    assign(
+      x = outname,
+      value = exportCols,
+      pos = .GlobalEnv
+    )
+  }
+  
+  # create vector of 0s, same length as rows in quantr (= number of cells in rasterx)
+  cols <- numeric(length(quantr[, 1]))
+  
+  # loop over all raster cells, and assign color value to each cell
+  for (i in 1:length(quantr[, 1])) {
+    a <- as.numeric.factor(quantr[i, 1])
+    b <- as.numeric.factor(quantr2[i, 1])
+    cols[i] <- as.numeric(col.matrix2[b, a])
+  }
+  # template raster
+  r <- rasterx
+  # assign color values to each raster cell
+  r[1:length(r)] <- cols
+  
+  return(r)
+}
+
+# Function to Create the colour matrix
+# Define the number of breaks
+nBreaks <- 5
+col.matrix <- colmat(nquantiles = nBreaks, xlab = "Maxent", ylab = "Aichi", 
+                     ## non default colours
+                     # upperleft = "#F7900A", upperright = "#993A65", 
+                     # bottomleft = "#44B360", bottomright = "#3A88B5",
+                     
+                     # example colors like the one example I shared
+                     # not ideal also, looks like scorched earth
+                     bottomleft = "grey90",
+                     upperleft = "#ff4704", 
+                     upperright =  "grey10", 
+                     bottomright = "#04eaff",
+                     
+                     saveLeg = FALSE, plotLeg = TRUE)
+
+# Function to throw/overlay points on the matrix
+nquantiles <- 5
+bottomleft = "grey90"
+upperleft = "#ff4704"
+upperright =  "grey10"
+bottomright = "#04eaff"
+
+my.data <- seq(0, 1, .01)
+# Default uses terciles (Lucchesi and Wikle [2017] doi: 10.1002/sta4.150)
+my.class <- classInt::classIntervals(my.data,
+                                     n = nquantiles,
+                                     style = "quantile" )
+my.pal.1 <- findColours(my.class, c(upperleft, bottomleft))
+my.pal.2 <- findColours(my.class, c(upperright, bottomright))
+col.matrix <- matrix(nrow = 101, ncol = 101, NA)
+for (i in 1:101) {
+  my.col <- c(paste(my.pal.1[i]), paste(my.pal.2[i]))
+  col.matrix[102 - i, ] <- findColours(my.class, my.col)
+}
+col.matrix.plot <- col.matrix %>%
+  as.data.frame(.) %>%
+  mutate("Y" = row_number()) %>%
+  mutate_at(.tbl = ., .vars = vars(starts_with("V")), .funs = list(as.character)) %>%
+  pivot_longer(data = ., cols = -Y, names_to = "X", values_to = "HEXCode") %>%
+  mutate("X" = as.integer(sub("V", "", .$X))) %>%
+  distinct(as.factor(HEXCode), .keep_all = TRUE) %>%
+  mutate(Y = rev(.$Y)) %>%
+  dplyr::select(-c(4)) %>%
+  mutate("Y" = rep(seq(from = 1, to = nquantiles, by = 1), each = nquantiles),
+         "X" = rep(seq(from = 1, to = nquantiles, by = 1), times = nquantiles)) %>%
+  mutate("UID" = row_number())
+
+p <- ggplot(col.matrix.plot, aes(X, Y, fill = HEXCode)) +
+  geom_raster() +
+  scale_fill_identity() +
+  coord_equal(expand = FALSE) +
+  theme_void() +
+  theme(aspect.ratio = 1,
+        axis.title = element_text(size = 12, colour = "black",hjust = 0.5,
+                                  vjust = 1),
+        axis.title.y = element_text(angle = 90, hjust = 0.5)) +
+  xlab(bquote(.(xlab) ~  symbol("\256"))) +
+  ylab(bquote(.(ylab) ~  symbol("\256")))
+print(p)
+assign(
+  x = "BivLegend",
+  value = p,
+  pos = .GlobalEnv
+)
+```
+
+# Setup
+```{r working directory}
+#d6::new_project(
+#name = "mugerwa_2019_01_chapter1"
+#,
+dir = "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
+
+# set working directory
+# dir <- "E:/IZW/IZW/PhD/Research/Chapters/Chapter 1/Analysis" #hard disk
+# dir <- "/Volumes/MACWINDOWS/IZW/IZW/PhD/Research/Chapters/Chapter 1/Analysis" #hard disk
+# dir <- "~/Chapter 1/Analysis" #server
+# dir <- "~/badrumugerwa/Chapter 1/Analysis/"
+# dir <- "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/PhD/Research/Chapters/Chapter 1/Analysis/" #IZW
+```
+
+# Data
+```{r data}
+# tables
+figure2a <-read.csv(paste0(dir,"/output/data-tables/noStudies_PerYear_noCountries_PerYear.csv"))
+figure2b <-read.csv(paste0(dir,"/output/data-tables/locs_peryr_countryInc_2000.csv"))
+figure2c <- read.csv(paste0(dir,"/output/data-tables/research_locations_ALLYears.csv"))
+
+# shape files
+world <- st_read(paste0(dir,"/output/geo-proc/shp/ne_10m_admin_0_countries.shp"))
+landmass <- st_read(paste0(dir,"/data-raw/geo-raw/shp/ne_10m_land.shp"))
+wdpa <- st_read(paste0(dir,"/data-raw/geo-raw/shp/WDPA_Jul2020-shapefile-polygons.shp"))
+biomes <- st_read(paste0(dir,"/data-raw/geo-raw/shp/Ecoregions2017.shp"))
+ifl <- st_read(paste0(dir,"/data-raw/geo-raw/shp/ifl_2000_2013_2016.shp"))
+hum_impact_spp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/Spatial_data_mammals.shp"))
+
+# raw rasters
+landmass <- raster(paste0(dir,"/data-raw/geo-raw/raster/landmass.tif"))
+humpop_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humpop_density.tif"))
+access_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/accessibility.tif"))
+friction_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/friction.tif"))
+humfoot_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humfoot.tif"))
+hum_impact_spp_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/cum_hum_impact.tif"))
+ifl_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/ifl.tif"))
+wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
+forloss_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/forloss.tif"))
+income_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/income.tif"))
+spp_rich_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/Richness.tif"))
+spp_datadef_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/DD_spp.tif"))
+biomes_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/biomes.tif"))
+elevation_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/elevation.tif"))
+tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
+ 
+
+```
+
+# Figure
+```{r figure 2}
+# Fig.2a
+Fig2a <- ggplot() +
+geom_bar(data=  figure2a,aes(x= Year,y= No_studies),stat="identity",
+color="white",fill=fig2_bar_color,position=position_dodge())+
+geom_line(data= figure2a,aes(x= Year,y= No_countries*5),size=1.5,color=fig2_line_color)+
+scale_y_continuous(sec.axis = sec_axis(~./5, name = "Countries with studies")) +
+labs(x="Year", y="Number of studies")+
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=axis.text.size))+
+science_theme_fig1
+Fig2a
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, height = 5, dpi = 300)
+
+# Fig.2b
+Fig2b <- ggplot(data=figure2b, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
+geom_bar(stat="identity",color="white", alpha=0.8) +
+labs(fill='Country income group')+
+scale_fill_manual(values=c("#ff6f69","#283655","#8874a3","#fe8a71",alpha=0.1))+
+geom_line(data= figure2b,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
+labs(x="Year", y="Number of locations")+
+scale_y_continuous(sec.axis = sec_axis(~./1, name = "Number of locations per country income group")) + 
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=axis.text.size),
+	   legend.text = element_text(size=legend.text.size))+
+science_theme_fig1b
+Fig2b 
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2b.png"), plot = Fig2b, width = 7, height = 5, dpi = 300)
+
+# Fig.2c
+# make research locations spatial, assign coordinate reference system to spatial points
+coordinates(figure2c) <- ~ lon + lat
+str(figure2c)
+ 
+locs_sp <- SpatialPointsDataFrame(coords = figure2c[, c("lon", "lat")],
+                   data = figure2c,proj4string =   CRS("+proj=longlat +datum=WGS84"))
+locs_sf <- as(locs_sp, "sf")
+
+# Transforming to Equal Earth Projection
+world_ee <- st_transform(world, st_crs(crs_equal_earth))
+locs_sf_ee <- st_transform(locs_sf, st_crs(crs_equal_earth))
+
+# Year as a factor
+locs_sf$Year <- factor(locs_sf$Year, levels = c("After 2000","Before 2000"))
+
+Fig2c <- ggplot() +
+geom_sf(data = world_ee, fill="grey95", colour = ctry_border_color1, size = ctry_border_size) +
+geom_sf(data = locs_sf_ee, aes(colour=Year, fill = Year), alpha = 0.5, size = study_point_size, shape = 16) +
+scale_fill_manual(values=c("grey20", "purple")) + 
+scale_colour_manual(values=c("grey20", "purple"))+
+theme_bw()+
+theme(axis.title = element_blank(),
+         axis.text = element_blank(),
+         panel.border = element_blank(),
+         legend.background = legend.bg,
+         legend.text = element_text(size=legend.text.size)) +
+guides(fill = guide_legend(title.position="top", 
+                              title.hjust = 0.5,
+                              override.aes = list(size = 2, alpha = 0.8)))+
+science_theme_fig2b
+Fig2c
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2c.png"),plot = Fig2c, scale = 1, dpi = 300, height = 4, width = 8)
+
+# Fig.2d
+#construct cartogram
+country <- cartogram_cont(world_ee, "No_sites", itermax = 5)
+plot(country[,76])
+
+# Create classes
+country$No_studies_class <- ifelse(country$No_studies == 0, 0, 
+                                    ifelse(country$No_studies <= 10, 1, 
+                                           ifelse(country$No_studies <= 50, 2, 
+                                                  ifelse(country$No_studies <= 100, 3, 
+                                                         ifelse(country$No_studies <= 200, 4, 
+                                                                ifelse(country$No_studies <= 300, 5,
+												                                          ifelse(country$No_studies <= 400, 6,
+													                                          ifelse(country$No_studies <= 500, 7, 
+                                                                       			ifelse(country$No_studies <= 600, 8, NA)))))))))
+country$No_studies_class <- factor(country$No_studies_class, 
+                            levels = seq(0, 8), 
+                            labels = c("0", "1-10", "11-50", "51-100", "101-200", "201-300", "301-400","401-500","501-600"))
+
+Fig2d <- ggplot() +
+geom_sf(data = country,  aes(fill= No_studies_class), color= ctry_border_color2, size = ctry_border_size,) +
+theme_bw()+
+scale_fill_viridis_d(name="Number of studies") +
+guides(fill = guide_legend(title.position="top", 
+                             title.hjust = 0.8,
+                             label.position = "right",
+                             ncol = 1)) +
+theme(axis.title = element_blank(),
+        panel.border = element_blank(),
+        legend.text = element_text(size=legend.text.size),
+        legend.background = legend.bg) +
+science_theme_fig2b +
+coord_sf()
+Fig2d
+
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2d.png"),plot = Fig2d, width =7, height = 8, dpi = 300)
+
+# Fig.2
+Fig2 <- Fig2a + Fig2b + Fig2c + Fig2d + plot_layout(ncol = 2, nrow = 2, 
+                 widths = c(1,1), heights = c(1.2, 1)) +
+                         plot_annotation(tag_levels = 'a', tag_suffix = ')')
+Fig2
+ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
+```
+
+# Raw data processing
+```{r generating rasters from vector datasets}
+
+# loading vector polygons
+landmass <- landmass
+income <- world
+wdpa <- wdpa
+biomes <- biomes
+ifl <- ifl
+hum_impact_spp <- hum_impact_spp
+
+# assigning a projection to the data
+landmass_prj <- st_transform(landmass, crs(prj))
+income_prj <- st_transform(world, crs(prj))
+wdpa_prj <- st_transform(wdpa, crs(prj))
+biomes_prj <- st_transform(biomes, crs(prj))
+ifl_prj <- st_transform(ifl, crs(prj))
+hum_impact_spp_prj <- st_transform(hum_impact_spp, crs(prj))
+
+# Tell R which features are factors 
+income$INCOME_GRPf <- as.factor(income$INCOME_GRP)
+biomes$BIOME_NUMf <- as.factor(biomes$BIOME_NUM)
+ifl$NAME_2 <- as.factor(ifl$Area_ha)
+landmass$featurecla <- as.factor(landmass$featurecla)
+wdpa$IUCN_CAT <- as.factor(wdpa$IUCN_CAT)
+hum_impact_spp$cum_impact <- as.factor(hum_impact_spp$cum_impact)
+
+# define RasterLayer object
+r.raster <- raster()
+ 
+# define raster extent, prj and pixel size
+extent <- extent(-180, 180, -90, 90)
+extent(r.raster) <- extent(extent)
+crs(r.raster) <-crs(prj)
+res(r.raster) <- 0.008333
+
+# rasterize
+start <- Sys.time()
+income.r <- fasterize(sf = income, raster = r.raster, field = 'AV_INC_GP', fun = "sum")
+ifl.r <- fasterize(sf = ifl, raster = r.raster, field = 'Area_ha', fun = "sum")
+landmass.r <- fasterize(sf = landmass, raster = r.raster, field = 'featurecla', fun = "sum")
+wdpa.r <- fasterize(sf = wdpa, raster = r.raster, field = 'IUCN_CAT', fun = "sum")
+biomesNum.r <- fasterize(sf = biomes, raster = r.raster, field = 'BIOME_NUMf', fun = "sum")
+hum_impact_spp.r <- fasterize(sf = hum_impact_spp_prj, raster = r.raster, field = 'cum_impact', fun = "sum")
+end <- Sys.time()
+end - start
+
+# plots
+plot(income.r)
+plot(ifl.r)
+plot(landmass.r)
+plot(wdpa.r)
+plot(biomesNum.r)
+plot(hum_impact_spp.r)
+
+# write rasters
+# writeRaster(income.r, paste0(dir, "/data-raw/geo-raw/raster/country_income_group.tif"))
+# writeRaster(ifl.r, paste0(dir, "/data-raw/geo-raw/raster/ifl.tif"))
+# writeRaster(wdpa.r, paste0(dir, "/data-raw/geo-raw/raster/wdpa.tif"))
+#writeRaster(landmass.r, paste0(dir, "/data-raw/geo-raw/raster/landmass.tif"))
+# writeRaster(biomesNum.r, paste0(dir, "/data-raw/geo-raw/raster/biomes.tif"))
+# writeRaster(hum_impact_spp.r, paste0(dir, "/data-raw/geo-raw/raster/no_hum_impact_species.r.tiff"))
+```
+
+# Raw data processing
+```{r masking to global landmass}
+# making predictors binary (1/0)
+# ifl.binary <- !is.na(ifl)
+# wdpa.binary <- !is.na(wdpa)
+
+# mask ifl with ocean(ocean is already na in world raster)
+# iflstatus <-  raster::mask(x = ifl.binary, mask = landmass)
+# wdpastatus <-  raster::mask(x = wdpa.binary, mask = landmass)
+
+# write binary raster
+# writeRaster(iflstatus,paste0(dir, "/data-raw/geo-raw/raster/ifl_bin.tif"))
+# writeRaster(wdpastatus,paste0(dir, "/data-raw/geo-raw/raster/wdpa_bin.tif"))
+
+# Hansen's forest loss data: Downloading, merging (in QGIS) and aggregating  (in R). Merging in QGIS
+```
+
+# Raw data processing
+```{r reprojecting rasters}
+# acesss
+# projectRaster(access_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/access_prj.tif")) 
+# access_prj <- raster(paste0(dir,"/covariates/predictors/access_prj.tif"));plot(access_prj)
+
+# friction
+# projectRaster(friction_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/friction_prj.tif"))
+# friction_prj <- raster(paste0(dir,"/covariates/predictors/friction_prj.tif"));plot(friction_prj)
+# mask ocean values
+# friction_prj_mask <- raster(paste0(dir,"/covariates/predictors/friction_prj_mask.tif"));plot(friction_prj_mask)
+# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
+# friction_prj_maskf <-  raster::mask(x = friction_prj_mask, mask = landmass)
+# plot(friction_prj_maskf)
+# writeRaster(friction_prj_maskf,paste0(dir, "/covariates/predictors/friction_prj_maskf.tif"))
+
+# humfoot_print
+# projectRaster(humfoot_print_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/humfoot_print_prj.tif")) 
+# humfoot_print_prj <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj.tif"));plot(humfoot_print_prj)
+# humfoot_print_prj_mask <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj_mask.tif"))
+# plot(humfoot_print_prj_mask)
+# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
+# humfoot_print_prj_maskf <-  raster::mask(x = humfoot_print_prj_mask, mask = landmass)
+# plot(humfoot_print_prj_maskf)
+# writeRaster(humfoot_print_prj_maskf,paste0(dir, "/covariates/predictors/humfoot_print_prj_maskf.tif"))
+
+# humfoot_print_prj_maskf[humfoot_print_prj_maskf > 100] <- NA
+# plot(humfoot_print_prj_maskf,main = "The Raster Mask",col = c("green"),legend = FALSE,axes = FALSE,box = FALSE)
+# humfoot_print_prj_maskf_lakes <-  raster::mask(x = humfoot_print_prj_maskf, mask = humfoot_print_prj_maskf)
+# plot(humfoot_print_prj_maskf_lakes)
+# writeRaster(humfoot_print_prj_maskf_lakes,paste0(dir, "/covariates/predictors/humfoot_print_prj_maskf_lakes.tif"))
+
+# hum_mod
+# projectRaster(hum_mod_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/hum_mod_prj.tif")) 
+# hum_mod_prj <- raster(paste0(dir,"/covariates/predictors/hum_mod_prj.tif"));plot(hum_mod_prj)
+# mask ocean values
+# hum_mod_prj_mask <- raster(paste0(dir,"/covariates/predictors/hum_mod_prj_maskf.tif"));plot(hum_mod_prj)
+# world_landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));world_landmass
+# hum_mod_prj_maskf <-  raster::mask(x = hum_mod_prj_mask, mask = world_landmass)
+# plot(hum_mod_prj_maskf)
+# writeRaster(hum_mod_prj_maskf,paste0(dir, "/covariates/predictors/hum_mod_prj_maskf.tif"))
+
+# forest loss
+# projectRaster(for_loss_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/for_loss_JN_prj.tif")) 
+# for_loss_prj <- raster(paste0(dir,"/covariates/predictors/for_loss_JN_prj.tif"));plot(for_loss_prj)
+# masking
+# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
+# for_loss_JN_prj_maskf <-  raster::mask(x = for_loss_prj, mask = landmass)
+# plot(for_loss_JN_prj_maskf)
+# save as INT2U 
+#writeRaster(for_loss_JN_prj_maskf/1000,paste0(dir, "/covariates/predictors/for_loss_JN_prj_maskf_prop.tif"))
+# Reclassifying to classify the rasta into two classess
+# for_loss_JN_prj_maskf <- raster(paste0(dir,"/covariates/predictors/for_loss_JN_prj_maskf.tif"));plot(for_loss_JN_prj_maskf)
+
+# threat_species
+# projectRaster(threat_species_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/threat_species_prj.tif")) 
+# threat_species_prj <- raster(paste0(dir,"/covariates/predictors/threat_species_prj.tif"));plot(threat_species_prj)
+
+# cum_hum_impact
+# projectRaster(cum_hum_impact_raw, hum_pop_00_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif")) 
+# cum_hum_impact_prj <- raster(paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif"));plot(cum_hum_impact_prj)
+# minValue(cum_hum_impact_prj);maxValue(cum_hum_impact_prj)
+
+# sp_rich
+# projectRaster(sp_rich_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/sp_rich_prj.tif")) 
+# sp_rich_prj <- raster(paste0(dir,"/covariates/predictors/sp_rich_prj.tif"));plot(sp_rich_prj)
+
+# sp_datadef
+# projectRaster(sp_datadef_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/sp_datadef.tif")) 
+# sp_datadef_prj <- raster(paste0(dir,"/covariates/predictors/sp_datadef_prj.tif"));plot(sp_datadef_prj)
+
+# wdpa
+# projectRaster(wdpa_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/wdpa_bin_prj.tif")) 
+# wdpa_prj <- raster(paste0(dir,"/covariates/predictors/wdpa_bin_prj.tif"));plot(wdpa_prj)
+
+# ifl
+# projectRaster(ifl_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/ifl_bin_prj.tif")) 
+# ifl_prj <- raster(paste0(dir,"/covariates/predictors/ifl_bin_prj.tif"));plot(ifl_prj)
+
+# biomes
+# projectRaster(biomesNum_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/biomesNum_prj.tif")) 
+# biomesNum_prj <- raster(paste0(dir,"/covariates/predictors/biomesNUm_prj.tif"));plot(biomesNUm_prj)
+
+# elevation
+# projectRaster(elevation_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/elevation_prj.tif")) 
+# elevation_prj <- raster(paste0(dir,"/covariates/predictors/elevation_prj.tif"));plot(elevation_prj)
+# mask ocean values
+# elevation_prj_maskf <- raster(paste0(dir,"/covariates/predictors/elevation_prj_mask.tif"));plot(elevation_prj)
+# world_landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));world_landmass
+# elevation_prj_maskf <-  raster::mask(x = elevation_prj_maskf, mask = world_landmass)
+# plot(elevation_prj_maskf)
+# writeRaster(elevation_prj_maskf,paste0(dir, "/covariates/predictors/elevation_prj_maskf.tif"))
+
+# tri
+# projectRaster(tri_raw, hum_pop_00_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/tri_prj.tif")) 
+# tri_prj <- raster(paste0(dir,"/covariates/predictors/tri_prj.tif"));plot(tri_prj)
+
+# extent <- extent(-180, 180, -90, 90)
+# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+# extent(elevation_prj_maskf) <- extent(extent)
+# crs(elevation_prj_maskf) <-crs(prj)
+# extract tri from elevation 
+# tri_prj_mask <- terrain(elevation_prj_maskf, opt="TRI")#opt can also be slope, aspect, TPI, roughness and flowdir
+# plot(tri_prj_mask)
+# writeRaster(tri_prj_mask, paste0(dir, "/covariates/predictors/tri_prj_mask.tif"))
+
+# income
+projectRaster(income_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/income_Avgp_prj_prj.tif"))
+# income_prj <- raster(paste0(dir,"/covariates/predictors/income_prj.tif"));plot(income_prj)
+
+# landmass
+# projectRaster(landmass_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/landmass_prj.tif"))
+# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
+```
+
