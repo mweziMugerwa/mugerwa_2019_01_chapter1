@@ -158,10 +158,11 @@ library(reshape2)
 
 # Setup
 ```{r functions}
-# Projections
+# Projections and extents
 crs_equal_earth <- 8857 # Equal Earth 
 crs_latlon <- 4326 # LatLong
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+extent <- extent(-180, 180, -90, 90)
 
 # Raincloud plots
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
@@ -749,19 +750,37 @@ plot(hum_impact_spp.r)
 # iflstatus <-  raster::mask(x = ifl.binary, mask = landmass)
 # wdpastatus <-  raster::mask(x = wdpa.binary, mask = landmass)
 # elevation <-  raster::mask(x = elevation_raw, mask = landmass)
+# forloss <-  raster::mask(x = forloss_raw, mask = landmass)
+# humfoot <-  raster::mask(x = humfoot_raw, mask = landmass)
+# hummod <-  raster::mask(x = hummod_raw, mask = landmass)
 
-
-# write binary raster
-# writeRaster(iflstatus,paste0(dir, "/data-raw/geo-raw/raster/ifl_bin.tif"))
-# writeRaster(wdpastatus,paste0(dir, "/data-raw/geo-raw/raster/wdpa_bin.tif"))
+# write rasters
+# writeRaster(iflstatus,paste0(dir, "/data-raw/geo-raw/raster/ifl.tif"))
+# writeRaster(wdpastatus,paste0(dir, "/data-raw/geo-raw/raster/wdpa.tif"))
 # writeRaster(elevation,paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
+# writeRaster(forloss,paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
+# writeRaster(humfoot,paste0(dir,"/output/geo-proc/rasters/mask/humfoot_mask.tif"))
+# writeRaster(hummod,paste0(dir,"/output/geo-proc/rasters/mask/hummod_mask.tif"))
 
-# Hansen's forest loss data: Downloading, merging (in QGIS) and aggregating  (in R). Merging in QGIS
+# Hansen's forest loss data: Downloading, merging (in QGIS) and aggregating  (in R).
 ```
 
 # Data
-```{r processed data}
-elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif")) 
+```{r processed data and creating TRI}
+# elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
+# forloss_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
+# humfoot_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/humfoot_mask.tif"))
+# hummod_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/humfoot_mask.tif"))
+# wdpa_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/wdpa_mask.tif"))
+# ifl_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/ifl_mask.tif"))
+
+# creating TRI
+# extent(elevation_mask) <- extent(extent)
+# crs(elevation_mask) <-crs(prj)
+# extract tri from elevation
+# tri <- terrain(elevation_mask, opt="TRI")
+# writeRaster(tri, paste0(dir, "/output/geo-proc/rasters/mask/tri_mask.tif"))
+# tri_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/tri_mask.tif"))
 ```
 
 # Raw data processing
@@ -778,87 +797,37 @@ projectRaster(income_raw, humpop_raw,0.008333, projection, method="ngb", alignOn
 # elevation
 projectRaster(elevation_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_elevation.tif")) 
 
+# forest loss
+projectRaster(forloss_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_forest_loss.tif")) 
 
-# cum_hum_impact
-projectRaster(cum_hum_impact_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif")) 
-# cum_hum_impact_prj <- raster(paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif"));plot(cum_hum_impact_prj)
-# minValue(cum_hum_impact_prj);maxValue(cum_hum_impact_prj)
+# hum_impact_spp
+projectRaster(hum_impact_spp_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_hum_impact_spp.tif")) 
 
 # humfoot_print
-projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif")) 
-# humfoot_print_prj <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj.tif"));plot(humfoot_print_prj)
-# humfoot_print_prj_mask <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj_mask.tif"))
-# plot(humfoot_print_prj_mask)
-# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
-# humfoot_print_prj_maskf <-  raster::mask(x = humfoot_print_prj_mask, mask = landmass)
-# plot(humfoot_print_prj_maskf)
-# writeRaster(humfoot_print_prj_maskf,paste0(dir, "/covariates/predictors/humfoot_print_prj_maskf.tif"))
-
-# humfoot_print_prj_maskf[humfoot_print_prj_maskf > 100] <- NA
-# plot(humfoot_print_prj_maskf,main = "The Raster Mask",col = c("green"),legend = FALSE,axes = FALSE,box = FALSE)
-# humfoot_print_prj_maskf_lakes <-  raster::mask(x = humfoot_print_prj_maskf, mask = humfoot_print_prj_maskf)
-# plot(humfoot_print_prj_maskf_lakes)
-# writeRaster(humfoot_print_prj_maskf_lakes,paste0(dir, "/covariates/predictors/humfoot_print_prj_maskf_lakes.tif"))
+projectRaster(humfoot_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif")) 
 
 # hum_mod
-# projectRaster(hum_mod_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/hum_mod_prj.tif")) 
-# hum_mod_prj <- raster(paste0(dir,"/covariates/predictors/hum_mod_prj.tif"));plot(hum_mod_prj)
-# mask ocean values
-# hum_mod_prj_mask <- raster(paste0(dir,"/covariates/predictors/hum_mod_prj_maskf.tif"));plot(hum_mod_prj)
-# world_landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));world_landmass
-# hum_mod_prj_maskf <-  raster::mask(x = hum_mod_prj_mask, mask = world_landmass)
-# plot(hum_mod_prj_maskf)
-# writeRaster(hum_mod_prj_maskf,paste0(dir, "/covariates/predictors/hum_mod_prj_maskf.tif"))
-
-# forest loss
-# projectRaster(for_loss_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/for_loss_JN_prj.tif")) 
-# for_loss_prj <- raster(paste0(dir,"/covariates/predictors/for_loss_JN_prj.tif"));plot(for_loss_prj)
-# masking
-# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
-# for_loss_JN_prj_maskf <-  raster::mask(x = for_loss_prj, mask = landmass)
-# plot(for_loss_JN_prj_maskf)
-# save as INT2U 
-#writeRaster(for_loss_JN_prj_maskf/1000,paste0(dir, "/covariates/predictors/for_loss_JN_prj_maskf_prop.tif"))
-# Reclassifying to classify the rasta into two classess
-# for_loss_JN_prj_maskf <- raster(paste0(dir,"/covariates/predictors/for_loss_JN_prj_maskf.tif"));plot(for_loss_JN_prj_maskf)
+projectRaster(hummod_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_hummod.tif")) 
 
 # threat_species
-# projectRaster(threat_species_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/threat_species_prj.tif")) 
-# threat_species_prj <- raster(paste0(dir,"/covariates/predictors/threat_species_prj.tif"));plot(threat_species_prj)
-
-
+projectRaster(threat_species_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_no_threat_species.tif")) 
 
 # sp_rich
-# projectRaster(sp_rich_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/sp_rich_prj.tif")) 
-# sp_rich_prj <- raster(paste0(dir,"/covariates/predictors/sp_rich_prj.tif"));plot(sp_rich_prj)
+projectRaster(spp_rich_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_species_rich.tif")) 
 
 # sp_datadef
-# projectRaster(sp_datadef_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/sp_datadef.tif")) 
-# sp_datadef_prj <- raster(paste0(dir,"/covariates/predictors/sp_datadef_prj.tif"));plot(sp_datadef_prj)
+projectRaster(spp_datadef_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_spp_datadef_raw.tif")) 
 
 # wdpa
-# projectRaster(wdpa_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/wdpa_bin_prj.tif")) 
-# wdpa_prj <- raster(paste0(dir,"/covariates/predictors/wdpa_bin_prj.tif"));plot(wdpa_prj)
+projectRaster(wdpa_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_wdpa.tif")) 
 
 # ifl
-# projectRaster(ifl_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/ifl_bin_prj.tif")) 
-# ifl_prj <- raster(paste0(dir,"/covariates/predictors/ifl_bin_prj.tif"));plot(ifl_prj)
-
-
-
+projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_ifl.tif")) 
 
 # tri
-# projectRaster(tri_raw, hum_pop_00_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/tri_prj.tif")) 
-# tri_prj <- raster(paste0(dir,"/covariates/predictors/tri_prj.tif"));plot(tri_prj)
+projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
 
-# extent <- extent(-180, 180, -90, 90)
-# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# extent(elevation_prj_maskf) <- extent(extent)
-# crs(elevation_prj_maskf) <-crs(prj)
-# extract tri from elevation 
-# tri_prj_mask <- terrain(elevation_prj_maskf, opt="TRI")#opt can also be slope, aspect, TPI, roughness and flowdir
-# plot(tri_prj_mask)
-# writeRaster(tri_prj_mask, paste0(dir, "/covariates/predictors/tri_prj_mask.tif"))
+
 
 
 
