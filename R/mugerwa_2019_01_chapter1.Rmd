@@ -524,7 +524,7 @@ dir = "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01
 ```
 
 # Data
-```{r data}
+```{r raw data}
 # tables
 figure2a <-read.csv(paste0(dir,"/output/data-tables/noStudies_PerYear_noCountries_PerYear.csv"))
 figure2b <-read.csv(paste0(dir,"/output/data-tables/locs_peryr_countryInc_2000.csv"))
@@ -748,22 +748,41 @@ plot(hum_impact_spp.r)
 # mask ifl with ocean(ocean is already na in world raster)
 # iflstatus <-  raster::mask(x = ifl.binary, mask = landmass)
 # wdpastatus <-  raster::mask(x = wdpa.binary, mask = landmass)
+# elevation <-  raster::mask(x = elevation_raw, mask = landmass)
+
 
 # write binary raster
 # writeRaster(iflstatus,paste0(dir, "/data-raw/geo-raw/raster/ifl_bin.tif"))
 # writeRaster(wdpastatus,paste0(dir, "/data-raw/geo-raw/raster/wdpa_bin.tif"))
+# writeRaster(elevation,paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
 
 # Hansen's forest loss data: Downloading, merging (in QGIS) and aggregating  (in R). Merging in QGIS
+```
+
+# Data
+```{r processed data}
+elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif")) 
 ```
 
 # Raw data processing
 ```{r reprojecting rasters}
 # access
-projectRaster(access_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_accessibility2.tif")) 
+projectRaster(access_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_accessibility.tif")) 
 
 # biomes
-projectRaster(biomes_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/biomesNum_prj.tif")) 
+projectRaster(biomes_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_biomes.tif")) 
 
+# country income group
+projectRaster(income_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_country_income_group.tif"))
+
+# elevation
+projectRaster(elevation_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_elevation.tif")) 
+
+
+# cum_hum_impact
+projectRaster(cum_hum_impact_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif")) 
+# cum_hum_impact_prj <- raster(paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif"));plot(cum_hum_impact_prj)
+# minValue(cum_hum_impact_prj);maxValue(cum_hum_impact_prj)
 
 # humfoot_print
 projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif")) 
@@ -807,10 +826,7 @@ projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="biline
 # projectRaster(threat_species_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/threat_species_prj.tif")) 
 # threat_species_prj <- raster(paste0(dir,"/covariates/predictors/threat_species_prj.tif"));plot(threat_species_prj)
 
-# cum_hum_impact
-# projectRaster(cum_hum_impact_raw, hum_pop_00_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif")) 
-# cum_hum_impact_prj <- raster(paste0(dir,"/covariates/predictors/cum_hum_impact_prj.tif"));plot(cum_hum_impact_prj)
-# minValue(cum_hum_impact_prj);maxValue(cum_hum_impact_prj)
+
 
 # sp_rich
 # projectRaster(sp_rich_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/sp_rich_prj.tif")) 
@@ -828,19 +844,8 @@ projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="biline
 # projectRaster(ifl_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/ifl_bin_prj.tif")) 
 # ifl_prj <- raster(paste0(dir,"/covariates/predictors/ifl_bin_prj.tif"));plot(ifl_prj)
 
-# biomes
-# projectRaster(biomesNum_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/biomesNum_prj.tif")) 
-# biomesNum_prj <- raster(paste0(dir,"/covariates/predictors/biomesNUm_prj.tif"));plot(biomesNUm_prj)
 
-# elevation
-# projectRaster(elevation_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/elevation_prj.tif")) 
-# elevation_prj <- raster(paste0(dir,"/covariates/predictors/elevation_prj.tif"));plot(elevation_prj)
-# mask ocean values
-# elevation_prj_maskf <- raster(paste0(dir,"/covariates/predictors/elevation_prj_mask.tif"));plot(elevation_prj)
-# world_landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));world_landmass
-# elevation_prj_maskf <-  raster::mask(x = elevation_prj_maskf, mask = world_landmass)
-# plot(elevation_prj_maskf)
-# writeRaster(elevation_prj_maskf,paste0(dir, "/covariates/predictors/elevation_prj_maskf.tif"))
+
 
 # tri
 # projectRaster(tri_raw, hum_pop_00_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/tri_prj.tif")) 
@@ -855,17 +860,12 @@ projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="biline
 # plot(tri_prj_mask)
 # writeRaster(tri_prj_mask, paste0(dir, "/covariates/predictors/tri_prj_mask.tif"))
 
-# income
-projectRaster(income_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/income_Avgp_prj_prj.tif"))
-# income_prj <- raster(paste0(dir,"/covariates/predictors/income_prj.tif"));plot(income_prj)
+
 
 # landmass
 # projectRaster(landmass_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/landmass_prj.tif"))
 # landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
 ```
 
-# TEST
-```{r}
-ffadsaesfe
-```
+
 
