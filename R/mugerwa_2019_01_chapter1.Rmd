@@ -864,3 +864,8 @@ projectRaster(income_raw, hum_pop_00_raw,0.008333, projection, method="ngb", ali
 # landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
 ```
 
+# TEST
+```{r}
+ffadsaesfe
+```
+
