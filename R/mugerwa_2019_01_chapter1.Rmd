@@ -581,7 +581,7 @@ ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, heigh
 Fig2b <- ggplot(data=figure2b, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
 geom_bar(stat="identity",color="white", alpha=0.8) +
 labs(fill='Country income group')+
-scale_fill_manual(values=c("#ff6f69","#283655","#8874a3","#fe8a71",alpha=0.1))+
+scale_fill_manual(values=c("#CD5C5C","#283655","#8874a3","#EFC8BD",alpha=0.1))+
 geom_line(data= figure2b,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
 labs(x="Year", y="Number of locations")+
 scale_y_continuous(sec.axis = sec_axis(~./1, name = "Number of locations per country income group")) + 
@@ -826,15 +826,7 @@ projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly
 
 # tri
 projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
-
-
-
-
-
-# landmass
-# projectRaster(landmass_raw, hum_pop_00_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/landmass_prj.tif"))
-# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
 ```
 
-
+rtrtjtt
 
