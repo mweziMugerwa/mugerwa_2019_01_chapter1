@@ -541,21 +541,21 @@ hum_impact_spp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/Spatial_data_mammals
 # raw rasters
 landmass <- raster(paste0(dir,"/data-raw/geo-raw/raster/landmass.tif"))
 humpop_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humpop_density.tif"))
+
 access_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/accessibility.tif"))
-friction_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/friction.tif"))
-humfoot_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humfoot.tif"))
+biomes_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/biomes.tif"))
 hum_impact_spp_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/cum_hum_impact.tif"))
-ifl_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/ifl.tif"))
-wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
+spp_datadef_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/DD_spp.tif"))
+elevation_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/elevation.tif"))
 forloss_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/forloss.tif"))
+humfoot_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humfoot.tif"))
+hummod_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/hummod.tif"))
+ifl_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/ifl.tif"))
 income_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/income.tif"))
 spp_rich_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/Richness.tif"))
-spp_datadef_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/DD_spp.tif"))
-biomes_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/biomes.tif"))
-elevation_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/elevation.tif"))
+spp_threat_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/Threat_spp.tif"))
 tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
- 
-
+wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
 ```
 
 # Figure
@@ -758,22 +758,15 @@ plot(hum_impact_spp.r)
 
 # Raw data processing
 ```{r reprojecting rasters}
-# acesss
-# projectRaster(access_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/access_prj.tif")) 
-# access_prj <- raster(paste0(dir,"/covariates/predictors/access_prj.tif"));plot(access_prj)
+# access
+projectRaster(access_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_accessibility2.tif")) 
 
-# friction
-# projectRaster(friction_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/friction_prj.tif"))
-# friction_prj <- raster(paste0(dir,"/covariates/predictors/friction_prj.tif"));plot(friction_prj)
-# mask ocean values
-# friction_prj_mask <- raster(paste0(dir,"/covariates/predictors/friction_prj_mask.tif"));plot(friction_prj_mask)
-# landmass <- raster(paste0(dir,"/covariates/predictors/landmass_prj.tif"));plot(landmass)
-# friction_prj_maskf <-  raster::mask(x = friction_prj_mask, mask = landmass)
-# plot(friction_prj_maskf)
-# writeRaster(friction_prj_maskf,paste0(dir, "/covariates/predictors/friction_prj_maskf.tif"))
+# biomes
+projectRaster(biomes_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/biomesNum_prj.tif")) 
+
 
 # humfoot_print
-# projectRaster(humfoot_print_raw, hum_pop_00,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/covariates/predictors/humfoot_print_prj.tif")) 
+projectRaster(humfoot_print_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif")) 
 # humfoot_print_prj <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj.tif"));plot(humfoot_print_prj)
 # humfoot_print_prj_mask <- raster(paste0(dir,"/covariates/predictors/humfoot_print_prj_mask.tif"))
 # plot(humfoot_print_prj_mask)
