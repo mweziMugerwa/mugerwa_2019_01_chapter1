@@ -828,4 +828,3 @@ projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly
 projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
 ```
 
- 
