@@ -31,8 +31,8 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 
 # Setup
 ```{r cleaning memory}
-#rm(list=ls())
-#gc()
+rm(list=ls())
+gc()
 ```
 
 # Setup
@@ -204,7 +204,7 @@ science_theme_fig1 = theme(panel.grid.major = element_line(#size = 0.5,
 science_theme_fig1b = theme(panel.grid.major = element_line(#size = 0.5, 
                                                            color = "grey"),
                           # axis.line = element_line(size = 0.7, color = "black"), 
-                           legend.position = c(0.5,0.8), 
+                           legend.position = c(0.4,0.8), 
                            text = element_text(size = 20),
                           plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
                           # panel.border = element_rect(color = "grey90")
@@ -559,123 +559,6 @@ tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
 wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
 ```
 
-# Figure
-```{r figure 2}
-# Fig.2a
-Fig2a <- ggplot() +
-geom_bar(data=  figure2a,aes(x= Year,y= No_studies),stat="identity",
-color="white",fill=fig2_bar_color,position=position_dodge())+
-geom_line(data= figure2a,aes(x= Year,y= No_countries*5),size=1.5,color=fig2_line_color)+
-scale_y_continuous(sec.axis = sec_axis(~./5, name = "Countries with studies")) +
-labs(x="Year", y="Number of studies")+
-theme_bw()+
-theme(axis.title.y = element_text(color = fig2_bar_color),
-         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
-         axis.text = element_text(size=axis.text.size))+
-science_theme_fig1
-Fig2a
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, height = 5, dpi = 300)
-
-# Fig.2b
-Fig2b <- ggplot(data=figure2b, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
-geom_bar(stat="identity",color="white", alpha=0.8) +
-labs(fill='Country income group')+
-scale_fill_manual(values=c("#CD5C5C","#283655","#8874a3","#EFC8BD",alpha=0.1))+
-geom_line(data= figure2b,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
-labs(x="Year", y="Number of locations")+
-scale_y_continuous(sec.axis = sec_axis(~./1, name = "Number of locations per country income group")) + 
-theme_bw()+
-theme(axis.title.y = element_text(color = fig2_bar_color),
-         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
-         axis.text = element_text(size=axis.text.size),
-	   legend.text = element_text(size=legend.text.size))+
-science_theme_fig1b
-Fig2b 
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2b.png"), plot = Fig2b, width = 7, height = 5, dpi = 300)
-
-# Fig.2c
-# make research locations spatial, assign coordinate reference system to spatial points
-coordinates(figure2c) <- ~ lon + lat
-str(figure2c)
- 
-locs_sp <- SpatialPointsDataFrame(coords = figure2c[, c("lon", "lat")],
-                   data = figure2c,proj4string =   CRS("+proj=longlat +datum=WGS84"))
-locs_sf <- as(locs_sp, "sf")
-
-# Transforming to Equal Earth Projection
-world_ee <- st_transform(world, st_crs(crs_equal_earth))
-locs_sf_ee <- st_transform(locs_sf, st_crs(crs_equal_earth))
-
-# Year as a factor
-locs_sf$Year <- factor(locs_sf$Year, levels = c("After 2000","Before 2000"))
-
-Fig2c <- ggplot() +
-geom_sf(data = world_ee, fill="grey95", colour = ctry_border_color1, size = ctry_border_size) +
-geom_sf(data = locs_sf_ee, aes(colour=Year, fill = Year), alpha = 0.5, size = study_point_size, shape = 16) +
-scale_fill_manual(values=c("grey20", "purple")) + 
-scale_colour_manual(values=c("grey20", "purple"))+
-theme_bw()+
-theme(axis.title = element_blank(),
-         axis.text = element_blank(),
-         panel.border = element_blank(),
-         legend.background = legend.bg,
-         legend.text = element_text(size=legend.text.size)) +
-guides(fill = guide_legend(title.position="top", 
-                              title.hjust = 0.5,
-                              override.aes = list(size = 2, alpha = 0.8)))+
-science_theme_fig2b
-Fig2c
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2c.png"),plot = Fig2c, scale = 1, dpi = 300, height = 4, width = 8)
-
-# Fig.2d
-#construct cartogram
-country <- cartogram_cont(world_ee, "No_sites", itermax = 5)
-plot(country[,76])
-
-# Create classes
-country$No_studies_class <- ifelse(country$No_studies == 0, 0, 
-                                    ifelse(country$No_studies <= 10, 1, 
-                                           ifelse(country$No_studies <= 50, 2, 
-                                                  ifelse(country$No_studies <= 100, 3, 
-                                                         ifelse(country$No_studies <= 200, 4, 
-                                                                ifelse(country$No_studies <= 300, 5,
-												                                          ifelse(country$No_studies <= 400, 6,
-													                                          ifelse(country$No_studies <= 500, 7, 
-                                                                       			ifelse(country$No_studies <= 600, 8, NA)))))))))
-country$No_studies_class <- factor(country$No_studies_class, 
-                            levels = seq(0, 8), 
-                            labels = c("0", "1-10", "11-50", "51-100", "101-200", "201-300", "301-400","401-500","501-600"))
-
-Fig2d <- ggplot() +
-geom_sf(data = country,  aes(fill= No_studies_class), color= ctry_border_color2, size = ctry_border_size,) +
-theme_bw()+
-scale_fill_viridis_d(name="Number of studies") +
-guides(fill = guide_legend(title.position="top", 
-                             title.hjust = 0.8,
-                             label.position = "right",
-                             ncol = 1)) +
-theme(axis.title = element_blank(),
-        panel.border = element_blank(),
-        legend.text = element_text(size=legend.text.size),
-        legend.background = legend.bg) +
-science_theme_fig2b +
-coord_sf()
-Fig2d
-
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2d.png"),plot = Fig2d, width =7, height = 8, dpi = 300)
-
-# Fig.2
-Fig2 <- Fig2a + Fig2b + Fig2c + Fig2d + plot_layout(ncol = 2, nrow = 2, 
-                 widths = c(1,1), heights = c(1.2, 1)) +
-                         plot_annotation(tag_levels = 'a', tag_suffix = ')')
-Fig2
-ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
-```
-
 # Raw data processing
 ```{r generating rasters from vector datasets}
 
@@ -765,8 +648,8 @@ plot(hum_impact_spp.r)
 # Hansen's forest loss data: Downloading, merging (in QGIS) and aggregating  (in R).
 ```
 
-# Data
-```{r processed data and creating TRI}
+# Raw data processing
+```{r masked data and creating TRI}
 # elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
 # forloss_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
 # humfoot_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/humfoot_mask.tif"))
@@ -827,4 +710,177 @@ projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly
 # tri
 projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
 ```
+
+# Data
+```{r processed rasters}
+# access
+access <- raster(paste0(dir,"/output/geo-proc/rasters/global_accessibility.tif"))
+
+# biomes
+biomes <- raster(paste0(dir,"/output/geo-proc/rasters/global_biomes.tif"))
+
+# income
+income <- raster(paste0(dir,"/output/geo-proc/rasters/global_country_income_group.tif"))
+
+# elevation
+elevation <- raster(paste0(dir,"/output/geo-proc/rasters/global_elevation.tif"))
+
+# forloss
+for_loss <- raster(paste0(dir,"/output/geo-proc/rasters/global_forest_loss.tif"))
+
+# cum_hum_impact
+cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/global_hum_impact_spp.tif"))
+
+# humfoot_print
+humfoot_print <- raster(paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif"))
+
+# hum_mod
+hum_mod <- raster(paste0(dir,"/output/geo-proc/rasters/global_hummod.tif"))
+
+# ifl
+ifl <- raster(paste0(dir,"/output/geo-proc/rasters/global_ifl.tif"))
+
+# threat_species
+threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_no_threat_species.tif"))
+
+# sp_datadef
+sp_datadef <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_datadef_species.tif"))
+
+# sp_rich
+sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_species_rich.tif"))
+
+# wdpa
+wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_wdpa.tif"))
+
+# tri
+tri <- raster(paste0(dir,"/output/geo-proc/rasters/global_tri.tif"))
+```
+
+# Figure
+```{r figure 2}
+# Fig.2a
+Fig2a <- ggplot() +
+geom_bar(data=  figure2a,aes(x= Year,y= No_studies),stat="identity",
+color="white",fill=fig2_bar_color,position=position_dodge())+
+geom_line(data= figure2a,aes(x= Year,y= No_countries*5),size=1.5,color=fig2_line_color)+
+scale_y_continuous(sec.axis = sec_axis(~./5, name = "Countries with studies")) +
+labs(x="Year", y="Number of studies")+
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=20))+
+science_theme_fig1
+Fig2a
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, height = 5, dpi = 300)
+########################################################################################################
+
+# Fig.2b
+# country income as factor
+dataframe <- figure2b
+dataframe$country_inc <- factor(dataframe$country_inc,levels = c("High","Upper-Middle","Lower-Middle","Low"))
+
+Fig2b <- ggplot(data=dataframe, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
+geom_bar(stat="identity",color="white", alpha=0.8) +
+labs(fill='Country income group')+
+scale_fill_manual(values=c("#CD5C5C","#EFC8BD","#8874a3","#283655",alpha=0.1),
+name= "Country income group",labels = c("High", "Upper-Middle", "Lower-Middle","Low"))+
+geom_line(data= dataframe,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
+labs(x="Year", y="Number of locations")+
+scale_y_continuous(sec.axis = sec_axis(~./1, name = "Locations per country income group")) + 
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=20),
+	   legend.text = element_text(size=legend.text.size))+
+science_theme_fig1b
+Fig2b 
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2b.png"), plot = Fig2b, width = 7, height = 5, dpi = 300)
+##############################################################################################################
+
+# Fig.2c
+# make research locations spatial, assign coordinate reference system to spatial points
+coordinates(figure2c) <- ~ lon + lat
+str(figure2c)
+ 
+locs_sp <- SpatialPointsDataFrame(coords = figure2c[, c("lon", "lat")],
+                   data = figure2c,proj4string =   CRS("+proj=longlat +datum=WGS84"))
+locs_sf <- as(locs_sp, "sf")
+
+# Transforming to Equal Earth Projection
+world_ee <- st_transform(world, st_crs(crs_equal_earth))
+locs_sf_ee <- st_transform(locs_sf, st_crs(crs_equal_earth))
+
+# Year as a factor
+locs_sf$Year <- factor(locs_sf$Year, levels = c("After 2000","Before 2000"))
+
+Fig2c <- ggplot() +
+geom_sf(data = world_ee, fill="grey95", colour = ctry_border_color1, size = ctry_border_size) +
+geom_sf(data = locs_sf_ee, aes(colour=Year, fill = Year), alpha = 0.5, size = study_point_size, shape = 16) +
+scale_fill_manual(values=c("grey20", "purple")) + 
+scale_colour_manual(values=c("grey20", "purple"))+
+theme_bw()+
+theme(axis.title = element_blank(),
+         axis.text = element_blank(),
+         panel.border = element_blank(),
+         legend.background = legend.bg,
+         legend.text = element_text(size=legend.text.size)) +
+guides(fill = guide_legend(title.position="top", 
+                              title.hjust = 0.5,
+                              override.aes = list(size = 2, alpha = 0.8)))+
+science_theme_fig2b
+Fig2c
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2c.png"),plot = Fig2c, scale = 1, dpi = 300, height = 4, width = 8)
+##################################################################################################################
+# Fig.2d
+#construct cartogram
+country <- cartogram_cont(world_ee, "No_sites", itermax = 5)
+plot(country[,76])
+
+# Create classes
+country$No_studies_class <- ifelse(country$No_studies == 0, 0, 
+                                    ifelse(country$No_studies <= 10, 1, 
+                                           ifelse(country$No_studies <= 50, 2, 
+                                                  ifelse(country$No_studies <= 100, 3, 
+                                                         ifelse(country$No_studies <= 200, 4, 
+                                                                ifelse(country$No_studies <= 300, 5,
+												                                          ifelse(country$No_studies <= 400, 6,
+													                                          ifelse(country$No_studies <= 500, 7, 
+                                                                       			ifelse(country$No_studies <= 600, 8, NA)))))))))
+country$No_studies_class <- factor(country$No_studies_class, 
+                            levels = seq(0, 8), 
+                            labels = c("0", "1-10", "11-50", "51-100", "101-200", "201-300", "301-400","401-500","501-600"))
+
+Fig2d <- ggplot() +
+geom_sf(data = country,  aes(fill= No_studies_class), color= ctry_border_color2, size = ctry_border_size,) +
+theme_bw()+
+scale_fill_viridis_d(name="Number of studies") +
+guides(fill = guide_legend(title.position="top", 
+                             title.hjust = 0.8,
+                             label.position = "right",
+                             ncol = 1)) +
+theme(axis.title = element_blank(),
+        panel.border = element_blank(),
+        legend.text = element_text(size=legend.text.size),
+        legend.background = legend.bg) +
+science_theme_fig2b +
+coord_sf()
+Fig2d
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2d.png"),plot = Fig2d, width =7, height = 8, dpi = 300)
+#####################################################################################################################
+
+# Fig.2
+Fig2 <- Fig2a + Fig2b + Fig2c + Fig2d + plot_layout(ncol = 2, nrow = 2, 
+                 widths = c(1,1), heights = c(1.2, 1)) +
+                         plot_annotation(tag_levels = 'a', tag_suffix = ')')
+Fig2
+ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
+```
+
+
+
+
 
