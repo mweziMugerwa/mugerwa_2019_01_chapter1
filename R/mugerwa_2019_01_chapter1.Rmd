@@ -5,10 +5,12 @@ description: "A global assessment of whether biodiversity research allocation in
 author: 
 name: "Mwezi 'Badru' Mugerwa"
 affiliation: "Leibniz Institute for Zoo and Wildlife Research"
-orcid_id: "0000-0000-0000-0000"
-affiliation_url: "https://izw-berlin.de/en/Mwezi Mugerwa"
+orcid_id: "0000-0002-2633-176X"
+affiliation_url: "https://www.izw-berlin.de/en/badru-mugerwa-en.html"
 date: "23/04/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Chunk options
@@ -28,6 +30,14 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 
 * ** Data:**
 *Research locations' Lat/Long data + global environmental (predictor) remote sensed datasets.  *
+
+# Setup
+```{r setting up project}
+# create project 
+# d6::new_project(
+# name = "mugerwa_2019_01_chapter1",
+# path = "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/")
+```
 
 # Setup
 ```{r cleaning memory}
@@ -511,17 +521,12 @@ assign(
 
 # Setup
 ```{r working directory}
-#d6::new_project(
-#name = "mugerwa_2019_01_chapter1"
-#,
-dir = "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
-
 # set working directory
 # dir <- "E:/IZW/IZW/PhD/Research/Chapters/Chapter 1/Analysis" #hard disk
 # dir <- "/Volumes/MACWINDOWS/IZW/IZW/PhD/Research/Chapters/Chapter 1/Analysis" #hard disk
 # dir <- "~/Chapter 1/Analysis" #server
 # dir <- "~/badrumugerwa/Chapter 1/Analysis/"
-# dir <- "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/PhD/Research/Chapters/Chapter 1/Analysis/" #IZW
+# dir = "D:/Dropbox (ScreenForBio)/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/" #IZW
 ```
 
 # Data
@@ -712,48 +717,1153 @@ projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alig
 ```
 
 # Data
-```{r processed rasters}
+```{r processed rasters:Global}
 # access
-access <- raster(paste0(dir,"/output/geo-proc/rasters/global_accessibility.tif"))
+access <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_accessibility.tif"))
 
 # biomes
-biomes <- raster(paste0(dir,"/output/geo-proc/rasters/global_biomes.tif"))
+biomes <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_biomes.tif"))
 
 # income
-income <- raster(paste0(dir,"/output/geo-proc/rasters/global_country_income_group.tif"))
+income <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_country_income_group.tif"))
 
 # elevation
-elevation <- raster(paste0(dir,"/output/geo-proc/rasters/global_elevation.tif"))
+elevation <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_elevation.tif"))
 
 # forloss
-for_loss <- raster(paste0(dir,"/output/geo-proc/rasters/global_forest_loss.tif"))
+for_loss <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_forest_loss.tif"))
 
 # cum_hum_impact
-cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/global_hum_impact_spp.tif"))
+cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_hum_impact_spp.tif"))
 
 # humfoot_print
-humfoot_print <- raster(paste0(dir,"/output/geo-proc/rasters/global_humfoot.tif"))
+humfoot_print <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_humfoot.tif"))
 
 # hum_mod
-hum_mod <- raster(paste0(dir,"/output/geo-proc/rasters/global_hummod.tif"))
+hum_mod <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_hummod.tif"))
 
 # ifl
-ifl <- raster(paste0(dir,"/output/geo-proc/rasters/global_ifl.tif"))
+ifl <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_ifl.tif"))
 
 # threat_species
-threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_no_threat_species.tif"))
+threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_no_threat_species.tif"))
 
 # sp_datadef
-sp_datadef <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_datadef_species.tif"))
+sp_datadef <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_datadef_species.tif"))
 
 # sp_rich
-sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_species_rich.tif"))
+sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_species_rich.tif"))
 
 # wdpa
-wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global_iucn_wdpa.tif"))
+wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_wdpa.tif"))
 
 # tri
-tri <- raster(paste0(dir,"/output/geo-proc/rasters/global_tri.tif"))
+tri <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_tri.tif"))
+```
+
+# Data
+```{r preparing covariates for biome1: tropical moist forests}
+
+# selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
+# biome1 <- biomes[biomes$BIOME_NUM == 1,];head(biome1)
+# plot(as(biome1, "sf"))
+
+# Create a raster out of it; define RasterLayer object
+# r.raster <- raster()
+
+# define raster extent, prj and pixel size
+# extent <- extent(-180, 180, -90, 90)
+# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+# extent(r.raster) <- extent(extent)
+# crs(r.raster) <-crs(prj)
+# res(r.raster) <- 0.008333
+
+# rasterize
+# start <- Sys.time()
+# biome1.r <- fasterize(sf = biome1, raster = r.raster,field = NULL,fun = "sum")
+# end<- Sys.time()
+# end - start
+ 
+# write raster
+# writeRaster(biome1.r, paste0(dir, "/covariates/predictors/biome1.tif"))
+ 
+# read in raster
+# biome1 <- raster(paste0(dir, "/covariates/predictors/biome1.tif"));plot(biome1)
+
+# load biome shapefile 1 created from the raster. This is done in qgis
+biome1.shp <- st_read(paste0(dir,"/covariates/shp/Biomes/biome1ff.shp"));names(biome1.shp);head(biome1.shp);plot(biome1.shp)
+
+# make occurrence data spatial, assign coordinate reference system to spatial points
+coordinates(occ_raw_2000_20sp_biome1) <- ~ lon + lat
+
+# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
+crs1 <- CRS("+init=epsg:4326");crs1
+
+# add crs projection to occurrence data
+crs(occ_raw_2000_20sp_biome1) <- crs1
+plot(occ_raw_2000_20sp_biome1)
+
+# create a raster stack to be masked with biome1
+predictorsBiome1 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,humfoot_print,hum_mod,ifl,threat_species,sp_datadef,sp_rich,wdpa,tri)
+
+# crop raster covariates in a stack by polygon (shapefile)
+biome1_studyArea <- crop(predictorsBiome1,extent(biome1.shp))
+
+# then mask the study area above with biome1
+biome1_studyArea_Mask <- raster::mask(biome1_studyArea,biome1.shp)
+
+# save the new covariate rasters (masked to biome) as .tif
+writeRaster(biome1_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome1/",names(biome1_studyArea_Mask),".tif"),bylayer=TRUE)
+```
+
+# Data
+```{r processed rasters: tropical moist forests}
+# access
+biome1_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_accessibility.tif"))
+
+# income
+biome1_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_country_income_group.tif"))
+
+# elevation
+biome1_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_elevation.tif"))
+
+# forloss
+biome1_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_forest_loss.tif"))
+
+# cum_hum_impact
+biome1_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_hum_impact_spp.tif"))
+
+# ifl
+biome1_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_ifl.tif"))
+
+# threat_species
+biome1_threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_iucn_no_threat_species.tif"))
+
+# sp_rich
+biome1_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_iucn_species_rich.tif"))
+
+# wdpa
+biome1_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_iucn_wdpa.tif"))
+
+# tri
+biome1_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_tri.tif"))
+```
+
+# Data
+```{r preparing covariates for biome7: tropical grasslands}
+# selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
+# biome7 <- biomes[biomes$BIOME_NUM == 7,];head(biome7)
+# biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
+
+# Create a raster outof it; define RasterLayer object
+# r.raster <- raster()
+
+# define raster extent, prj and pixel size
+# extent <- extent(-180, 180, -90, 90)
+# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+# extent(r.raster) <- extent(extent)
+# crs(r.raster) <-crs(prj)
+# res(r.raster) <- 0.008333
+
+# rasterize
+# start <- Sys.time()
+# biome7.r <- fasterize(sf = biome7, raster = r.raster,field = NULL,fun = "sum")
+# end<- Sys.time()
+# end - start
+ 
+# write raster
+# writeRaster(biome7.r, paste0(dir, "/covariates/predictors/biome7.tif"))
+ 
+# read in raster
+biome7 <- raster(paste0(dir, "/covariates/predictors/biome7.tif"));plot(biome7)
+
+# load biome shapefile 1 created from the raster. This is done in qgis
+biome7.shp <- st_read(paste0(dir,"/covariates/shp/Biomes/biome7.shp"));names(biome7.shp);head(biome7.shp)
+
+# make occurrence data spatial, assign coordinate reference system to spatial points
+coordinates(occ_raw_2000_20sp_biome7) <- ~ lon + lat
+
+# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
+crs1 <- CRS("+init=epsg:4326");crs1
+
+# add crs projection to occurrence data
+crs(occ_raw_2000_20sp_biome7) <- crs1
+plot(occ_raw_2000_20sp_biome7)
+
+# create a raster stack to be masked with biome4
+predictorsBiome7 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,humfoot_print,hum_mod,ifl,threat_species,sp_datadef,sp_rich,wdpa,tri)
+
+# crop raster covariates in a stack by polygon (shapefile)
+biome7_studyArea <- crop(predictorsBiome7,extent(biome7.shp))
+
+# then mask the study area above with biome4
+biome7_studyArea_Mask <- raster::mask(biome7_studyArea,biome7.shp)
+
+# save the new covariate rasters (masked to biome) as .tif
+writeRaster(biome7_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome7/",names(biome7_studyArea_Mask),".tif"),bylayer=TRUE)
+```
+
+# Data
+```{r processed rasters: tropical grasslands}
+# access
+biome7_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_accessibility.tif"))
+
+# income
+biome7_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_country_income_group.tif"))
+
+# elevation
+biome7_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_elevation.tif"))
+
+# forloss
+biome7_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_forest_loss.tif"))
+
+# cum_hum_impact
+biome7_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_hum_impact_spp.tif"))
+
+# ifl
+biome7_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_ifl.tif"))
+
+# threat_species
+biome7_threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_iucn_no_threat_species.tif"))
+
+# sp_rich
+biome7_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_iucn_species_rich.tif"))
+
+# wdpa
+biome7_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_iucn_wdpa.tif"))
+
+# tri
+biome7_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_tri.tif"))
+```
+
+# Data
+```{r preparing covariates for biome12: Mediterranean forests}
+# selecting out Mediterranean Forests, Woodlands & Scrub biome
+# biome12 <- biomes[biomes$BIOME_NUM == 12,];head(biome12)
+# biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
+
+# Create a raster out of it; define RasterLayer object
+# r.raster <- raster()
+
+# define raster extent, prj and pixel size
+# extent <- extent(-180, 180, -90, 90)
+# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+# extent(r.raster) <- extent(extent)
+# crs(r.raster) <-crs(prj)
+# res(r.raster) <- 0.008333
+
+# rasterize
+# start <- Sys.time()
+# biome12.r <- fasterize(sf = biome12, raster = r.raster,field = NULL,fun = "sum")
+# end<- Sys.time()
+# end - start
+ 
+# write raster
+# writeRaster(biome12.r, paste0(dir, "/covariates/predictors/biome12.tif"))
+ 
+# read in raster
+# biome12 <- raster(paste0(dir, "/covariates/predictors/biome12.tif"));plot(biome12)
+
+# load biome shapefile 1 created from the raster. This is done in qgis
+# biome12.shp <- st_read(paste0(dir,"/covariates/shp/Biomes/biome12.shp"));names(biome12.shp);head(biome12.shp);plot(biome12.shp)
+
+# make occurrence data spatial, assign coordinate reference system to spatial points
+# coordinates(occ_raw_2000_20sp_biome12) <- ~ lon + lat
+
+# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
+# crs1 <- CRS("+init=epsg:4326");crs1
+
+# add crs projection to occurrence data
+# crs(occ_raw_2000_20sp_biome12) <- crs1
+# plot(occ_raw_2000_20sp_biome12)
+
+# create a raster stack to be masked with biome4
+# predictorsBiome12 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,humfoot_print,hum_mod,ifl,threat_species,sp_datadef,sp_rich,wdpa,tri)
+
+# crop raster covariates in a stack by polygon (shapefile)
+# biome12_studyArea <- crop(predictorsBiome12,extent(biome12.shp))
+
+# then mask the study area above with biome12
+# biome12_studyArea_Mask <- raster::mask(biome12_studyArea,biome12.shp)
+
+# save the new covariate rasters (masked to biome) as .tif
+# writeRaster(biome12_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome12/",names(biome12_studyArea_Mask),".tif"),bylayer=TRUE)
+```
+
+# Data
+```{r processed rasters: Mediterranean forests}
+# access
+biome12_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_accessibility.tif"))
+
+# income
+biome12_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_country_income_group.tif"))
+
+# elevation
+biome12_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_elevation.tif"))
+
+# forloss
+biome12_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_forest_loss.tif"))
+
+# cum_hum_impact
+biome12_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_hum_impact_spp.tif"))
+plot(biome12_cum_hum_impact)
+
+# ifl
+biome12_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_ifl.tif"))
+
+# threat_species
+biome12_threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_iucn_no_threat_species.tif"))
+
+# sp_rich
+biome12_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_iucn_species_rich.tif"))
+
+# wdpa
+biome12_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_iucn_wdpa.tif"))
+
+# tri
+biome12_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_tri.tif"))
+```
+
+# Data
+```{r preparing covariates for biome4: Temperate forests}
+# selecting out Temperate mixed forests, and plotting it
+# biome4 <- biomes[biomes$BIOME_NUM == 4,];head(biome4)
+# # biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
+# 
+# # Create a raster out of it; define RasterLayer object
+# r.raster <- raster()
+# 
+# # define raster extent, prj and pixel size
+# extent <- extent(-180, 180, -90, 90)
+# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+# 
+# extent(r.raster) <- extent(extent)
+# crs(r.raster) <-crs(prj)
+# res(r.raster) <- 0.008333
+# 
+# # rasterize
+# start <- Sys.time()
+# biome4.r <- fasterize(sf = biome4, raster = r.raster,field = NULL,fun = "sum")
+# end<- Sys.time()
+# end - start
+ 
+# # write raster
+# writeRaster(biome4.r, paste0(dir, "/covariates/predictors/biome4.tif"))
+ 
+# read in raster
+# biome4 <- raster(paste0(dir, "/covariates/predictors/biome4.tif"));plot(biome4)
+
+# load biome shapefile 1 created from the raster. This is done in qgis
+# biome4.shp <- st_read(paste0(dir,"/covariates/shp/Biomes/biome4.shp"));names(biome4.shp);head(biome4.shp)
+
+# make occurrence data spatial, assign coordinate reference system to spatial points
+# coordinates(occ_raw_2000_20sp_biome4) <- ~ lon + lat
+
+# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
+# crs1 <- CRS("+init=epsg:4326");crs1
+
+# add crs projection to occurrence data
+# crs(occ_raw_2000_20sp_biome4) <- crs1
+# plot(occ_raw_2000_20sp_biome4)
+
+# create a raster stack to be masked with biome4
+# predictorsBiome4 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,humfoot_print,hum_mod,ifl,threat_species,sp_datadef,sp_rich,wdpa,tri)
+
+# crop raster covariates in a stack by polygon (shapefile)
+# biome4_studyArea <- crop(predictorsBiome4,extent(biome4.shp))
+
+# then mask the study area above with biome4
+# biome4_studyArea_Mask <- raster::mask(biome4_studyArea,biome4.shp)
+
+# save the new covariate rasters (masked to biome) as .tif
+# writeRaster(biome12_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome4/",names(biome4_studyArea_Mask),".tif"),bylayer=TRUE)
+```
+
+# Data
+```{r processed rasters: Temperate forests}
+# access
+biome4_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_accessibility.tif"))
+
+# income
+biome4_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_country_income_group.tif"))
+
+# elevation
+biome4_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_elevation.tif"))
+
+# forloss
+biome4_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_forest_loss.tif"))
+
+# cum_hum_impact
+biome4_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_hum_impact_spp.tif"))
+
+# ifl
+biome4_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_ifl.tif"))
+
+# threat_species
+biome4_threat_species <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_iucn_no_threat_species.tif"))
+
+# sp_rich
+biome4_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_iucn_species_rich.tif"))
+
+# wdpa
+biome4_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_iucn_wdpa.tif"))
+
+# tri
+biome4_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_tri.tif"))
+```
+
+# Data
+```{r Final data files}
+# For correlation matrix
+corr_matrix <- read.csv(paste0(dir,"/output/data-tables/corrmatrix_avail_occ_covs.csv"))
+# for data distribution
+data_distribution <- read.csv(paste0(dir,"/output/data-tables/data_distribution.csv"))
+# for MaxEnt models
+global_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_global.csv"),sep=',',header=TRUE)[,-1]
+biome1_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome1.csv"),sep=',',header=TRUE)[,-1]
+biome7_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome7.csv"),sep=',',header=TRUE)[,-1]
+biome12_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome12.csv"),sep=',',header=TRUE)[,-1]
+biome4_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome4.csv"),sep=',',header=TRUE)[,-1]
+```
+
+# Collinearity test
+```{r collinearity test}
+# subset data for only occurrence data
+occ_data <- subset(corr_matrix,data=="Occurrence"); length(occ_data$fid)
+
+# collate variables to be tested
+cordata <- occ_data %>% dplyr::select(access,humfoot,hum_mod,threat_sp,cum_hum_im,forloss,sp_rich,datadef_sp,elevation,TRI)
+
+# check for collinearity
+cor <- round(cor(cordata,use="pairwise.complete.obs",method = "spearman"),1)
+write.csv(cor, paste0(dir,"/output/data-tables/Spearman_cormatrix.csv"))
+
+# plot
+corplot <- ggcorrplot(cor, hc.order = TRUE,lab=TRUE,legend.title = "Correlation")+
+labs(fill='Correlation')
+corplot
+
+# save plot
+ggsave(filename = paste0(dir,"/plots/Spearman_cormatrix.png"), plot = corplot, width = 10, height = 7, dpi = 300)
+```
+
+# Visualising distribution for avialable vs. locations (data)
+```{r data distribution between available vs. locations }
+# load in occurrence and available points
+avail_locs <-  data_distribution;str(avail_locs);names(avail_locs)
+
+# Plot available and occurrence points for continuous covariates with Raincloud plot with boxplots
+# continuous covariates
+# species richness
+sp_rich <- ggplot(avail_locs,aes(x=data,y= sp_rich, fill = data, colour = data))+
+theme_update(text = element_text(size=12))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = sp_rich),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+ylab("Terrestrial mammal species richness")+
+xlab("Data")+
+coord_flip()+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution; sp_rich
+
+# number of species impacted (cumulative human impact)
+num_sp_impacted <- ggplot(avail_locs ,aes(x=data,y= num_sp_imp, fill = data, colour = data))+
+theme_update(text = element_text(size=12))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = num_sp_imp),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+ylab("Number of impacted species")+
+xlab("")+
+coord_flip()+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution
+num_sp_impacted
+
+# accessibility
+avail_locs$access_hrs <- 1/60*(avail_locs$access)
+access <- ggplot(avail_locs,aes(x=data,y= access_hrs, fill = data, colour = data))+
+theme_update(text = element_text(size=20))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = access_hrs),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+coord_flip()+
+ylim(0,300)+
+ylab("Accessibility (Travel time in hours)")+
+xlab("Data")+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution
+access
+
+# forest loss
+avail_locs$forlossSQ<- sqrt(avail_locs$forloss)
+forloss <- ggplot(avail_locs,aes(x=data,y= forlossSQ, fill = data, colour = data))+
+theme_update(text = element_text(size=12))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = forlossSQ),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+ylab("Forest loss")+
+xlab("")+
+coord_flip()+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution
+forloss
+  
+# TRI
+tri <- ggplot(avail_locs,aes(x=data,y= TRI, fill = data, colour = data))+
+theme_update(text = element_text(size=12))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = TRI),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+ylab("Terrain Ruggedness Index (meters)")+
+xlab("")+
+coord_flip()+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution;access; tri
+
+# Elevation
+elevation <- ggplot(avail_locs,aes(x=data,y= elevation, fill = data, colour = data))+
+theme_update(text = element_text(size=12))+
+geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
+geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
+geom_boxplot(aes(x = data, y = elevation),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
+ylab("Elevation (meters)")+
+xlab("")+
+coord_flip()+
+guides(fill = FALSE, colour = FALSE) +
+scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution;elevation
+
+# save
+continuous <- ggarrange(sp_rich,num_sp_impacted,access,forloss,tri,elevation, ncol=2, nrow=3);continuous
+ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_continuous.png"),
+plot = continuous, width =14, height = 17, dpi = 300)
+
+# categorical predictors
+# Country income group
+income_tbl <- avail_locs %>% group_by(income) %>% tally(); income_tbl
+income <- table(income=avail_locs$income, data=avail_locs$data);income
+
+#calculating percentage of points per each country income group
+available_High= 14065/41936*100;available_High
+available_Upper_middle=17197/41936*100;available_Upper_middle
+available_Lower_middle= 5803/41936*100;available_Lower_middle
+available_Low= 4871/41936*100;available_Low
+#available_NA=37/41936*100;available_NA
+
+locations_High = 1332/3394*100;locations_High 
+locations_Upper_middle = 1363/3394*100;locations_Upper_middle
+locations_Lower_middle = 437/3394*100;locations_Lower_middle
+locations_Low = 262/3394*100;locations_Low 
+occurrence_NA=1/3394*100;occurrence_NA
+  
+# building data frame
+percent_income<- data.frame(Income =c("Group 1","Group 2","Group 3","Group 4"), 
+Data =c("Available","Available","Available","Available","Locations","Locations","Locations","Locations"), 
+percent=c(available_High,available_Upper_middle,available_Lower_middle,available_Low,
+locations_High ,locations_Upper_middle ,locations_Lower_middle ,locations_Low));percent_income
+
+# as a matrix
+dataframe <- as.data.frame.matrix(percent_income)
+
+# the plot
+income <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Income)) +
+geom_bar(stat="identity",color="Black", alpha=0.5)+
+#labs(fill="Income")+
+#geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
+xlab("Data")+ylab("Percentage of locations")+
+theme(panel.grid.major.x=element_blank())+
+# scale_color_viridis(discrete = TRUE,option = "A")+
+# scale_fill_viridis(discrete = TRUE,option = "A")+
+scale_fill_manual(values = c("grey90","grey70","grey50","grey30"), name= "Country income", labels=c("Group 1","Group 2","Group 3","Group 4"))+
+#scale_colour_brewer(palette = "Dark2")+
+#scale_fill_brewer(palette = "Dark2")+
+coord_flip()+
+theme_bw()+
+science_theme_distribution;income
+
+# IFL
+ifl_tbl <- avail_locs %>% group_by(IFL) %>% tally(); ifl_tbl
+ifl <- table(ifl=avail_locs $IFL, data=avail_locs$data);ifl
+
+# Calculating number of points in IFL vs. non-IFL 
+available_yes= 3646/41937*100;available_yes
+location_yes=251/3395*100;location_yes
+available_no= 38291/41937*100;available_no
+location_no=3144/3395*100;location_no
+  
+# building dataframe
+percent_ifl <- data.frame(IFL=c("Yes","No"),
+                          Data =c("Available","Available","Locations","Locations"),
+                          percent=c(available_yes, available_no, location_yes, location_no));percent_ifl
+
+# as a matrix
+dataframe <- as.data.frame.matrix(percent_ifl)
+
+# the plot
+ifl <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= IFL)) +
+geom_bar(stat="identity",color="Black",alpha=0.5)+
+#geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
+xlab("")+ylab("Percentage of locations")+
+theme(panel.grid.major.x=element_blank())+
+#scale_colour_brewer(palette = "Dark2")+
+#scale_fill_brewer(palette = "Dark2")+
+coord_flip()+
+#scale_color_viridis(discrete = TRUE,option = "A")+
+#scale_fill_viridis(discrete = TRUE,option = "A")+
+scale_fill_manual(values = c("grey75","grey25"), name= "IFL", labels=c("No","Yes"),guide = guide_legend(reverse = TRUE))+
+#scale_fill_manual(values = c("grey75","grey25"))+
+theme_bw()+
+science_theme_distribution; ifl
+
+# WDPA
+wdpa_tbl <- avail_locs %>% group_by(protected) %>% tally(); wdpa_tbl
+wdpa <- table(wdpa = avail_locs$protected, data=avail_locs$data);wdpa
+
+# calculating the number of points in protected vs. un protected
+available_yes= 3587/41937*100;available_yes
+available_no= 38350/41937*100;available_no
+location_yes=986/3395*100;location_yes
+location_no=2409/3395*100;location_no
+  
+# building dataframe
+percent_wdpa <- data.frame(Protected =c("Yes","No"),
+                           Data =c("Available","Available","Locations","Locations"),
+                           percent=c(available_yes,available_no,location_yes,location_no));percent_wdpa
+
+# as a matrix
+dataframe <- as.data.frame.matrix(percent_wdpa)
+
+# the plot
+wdpa <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Protected)) +
+geom_bar(stat="identity",color="Black",alpha=0.5)+
+#labs(fill="IUCN protected area")+
+#geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
+xlab("")+ylab("")+
+theme(panel.grid.major.x=element_blank())+
+#scale_color_viridis(discrete = TRUE,option = "A")+
+#scale_fill_viridis(discrete = TRUE,option = "A")+
+#scale_fill_manual(values = c("grey75","grey25"))+
+scale_fill_manual(values = c("grey75","grey25"), name= "IUCN PA", labels=c("No","Yes"),guide = guide_legend(reverse = TRUE))+
+coord_flip()+
+# scale_colour_brewer(palette = "Dark2")+
+# scale_fill_brewer(palette = "Dark2")+
+theme_bw()+
+science_theme_distribution;wdpa
+
+# Biomes
+biomes_tbl <- avail_locs %>% group_by(biomes) %>% tally()%>% arrange(desc(biomes)); biomes_tbl
+biomes <- table(biomes=avail_locs$biomes, data=avail_locs$data);biomes
+
+# calculating the percentage of points per biome
+available_6= 4363/37681*100;available_6
+available_13= 7538/37681*100;available_13
+available_9 = 334/37681*100;available_9
+available_14 = 93/37681*100;available_14
+available_12 =953/37681*100;available_12
+available_10 =1383/37681*100;available_10
+available_4	=3530/37681*100;available_4
+available_5	=1076/37681*100;available_5
+available_8	=3032/37681*100;available_8
+available_3=184/37681*100;available_3
+available_2=1105/37681*100;available_2
+available_7=6127/37681*100;available_7
+available_1 =5563/37681*100;available_1
+available_11=2400/37681*100;available_11
+#available_NA=4292/37681*100;available_NA
+
+locations_6= 31/3366*100;locations_6
+locations_13= 218/3366*100;locations_13
+locations_9= 36/3366*100;locations_9
+locations_14= 41/3366*100;locations_14
+locations_12 =228/3366*100;locations_12
+locations_10 =82/3366*100;locations_10
+locations_4	=711/3366*100;locations_4
+locations_5	=183/3366*100;locations_5
+locations_8	=188/3366*100;locations_8
+locations_3 =73/3366*100;locations_3
+locations_2=169/3366*100;locations_2
+locations_7=311/3366*100;locations_7
+locations_1 =1075/3366*100;locations_1 
+locations_11=20/3366*100;locations_11
+#locations_NA=29/3366*100;locations_NA
+
+# Building the dataframe
+percent_biomes <- data.frame(Biomes =c("Biome 1",
+                                       "Biome 2",
+                                       "Biome 3",
+                                       "Biome 4",
+                                       "Biome 5",
+                                       "Biome 6",
+                                       "Biome 7",
+                                       "Biome 8",
+                                       "Biome 4",
+                                       "Biome 10",
+                                       "Biome 11",
+                                       "Biome 12",
+                                       "Biome 13",
+                                       "Biome 14"), 
+                             Data=c("Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Available",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations",
+                                    "Locations"), 
+                             percent=c(available_1,
+ 						   available_2,
+						   available_3,
+						   available_4,
+						   available_5,
+						   available_6,
+						   available_7,
+						   available_8,
+						   available_9,
+						   available_10,
+   						 available_11,
+ 						   available_12,
+						   available_13,
+						   available_14,
+						   locations_1,
+						   locations_2,
+						   locations_3,
+						   locations_4,
+					     locations_5,
+						   locations_6,
+						   locations_7,
+               locations_8,
+						   locations_9,
+					     locations_10,
+						   locations_11,
+					     locations_12,
+					     locations_13,
+               locations_14));percent_biomes
+# as a matrix
+dataframe <- as.data.frame.matrix(percent_biomes)
+
+# the plot
+dataframe$Biomes <- factor(dataframe$Biomes, levels = c("Biome 1","Biome 2","Biome 3","Biome 4","Biome 5","Biome 6","Biome 7","Biome 8", "Biome 9","Biome 10","Biome 11","Biome 12","Biome 13","Biome 14"))
+biomes <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Biomes)) +
+geom_bar(stat="identity",color="Black", alpha=0.8)+
+labs(fill="Biomes")+
+xlab("Data")+ylab("Percentage of locations")+
+theme(panel.grid.major.x=element_blank())+
+#scale_color_viridis(discrete = TRUE,option = "E")+
+scale_fill_viridis(discrete = TRUE,option = "E")+
+coord_flip()+
+science_theme_distribution;biomes
+
+# save
+categorical <- biomes + wdpa + income + ifl
+ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_categorical.png"),
+plot = categorical, width =15, height = 9, dpi = 300)
+```
+
+# Generate background points
+```{r generating background points}
+# create raster stacks for different models
+
+# Global
+predictorsGL <- raster::stack(access,cum_hum_impact,for_loss,income,biomes,sp_rich,wdpa,ifl,elevation,tri)
+
+# Biomes
+predictorsBiome1 <- raster::stack(biome1_access,biome1_income,biome1_elevation,biome1_forloss,biome1_cum_hum_impact,biome1_ifl,biome1_threat_species,biome1_sp_rich,biome1_wdpa,biome1_tri)
+
+predictorsBiome7 <- raster::stack(biome7_access,biome7_income,biome7_elevation,biome7_forloss,biome7_cum_hum_impact,biome7_ifl,biome7_threat_species,biome7_sp_rich,biome7_wdpa,biome7_tri)
+
+predictorsBiome12 <- raster::stack(biome12_access,biome12_income,biome12_elevation,biome12_forloss,biome12_cum_hum_impact,biome12_ifl,biome12_threat_species,biome12_sp_rich,biome12_wdpa,biome12_tri)
+
+predictorsBiome4 <- raster::stack(biome4_access,biome4_income,biome4_elevation,biome4_forloss,biome4_cum_hum_impact,biome4_ifl,biome4_threat_species,biome4_sp_rich,biome4_wdpa,biome4_tri)
+
+# Run the fastRandomPoint function
+fastRandomPoints <- function(r, n, prob = FALSE) {
+  if(raster::nlayers(r) > 1) r <- r[[1]]
+  v <- as.vector(r)
+  v.notNA <- which(!is.na(v))
+  v.vals <- v[v.notNA]
+  if(prob == TRUE & n <= length(v.notNA)) {
+    x <- sample(v.notNA, n, prob = v.vals)
+  } else {
+    x <- sample(v.notNA, n)
+  }
+  pts <- raster::xyFromCell(r, x)
+  return(pts)
+}
+
+# Generate background points using the fastRandomPoint function
+# Global
+bgGL <- fastRandomPoints(predictorsGL, 10000)
+
+# Biomes
+bgBiome1 <- fastRandomPoints(predictorsBiome1, 10000)
+bgBiome7 <- fastRandomPoints(predictorsBiome7, 10000)
+bgBiome12 <- fastRandomPoints(predictorsBiome12, 10000)
+bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
+```
+
+# Model evaluation
+```{r model evaluation with ENMevaluate}
+# We use function ENMevaluate that allows us to objectively select what model settings to use when running MaxEnt
+# run the evaluation: This run uses the "randomkfold" method of cross-validation and 10 cross-validation folds. 
+
+# Global
+enmevalGL <- ENMevaluate(occ_raw_2000_20sp_ALL, predictorsGL, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,5,7,8), algorithm='maxent.jar')
+enmevalGL@results
+write.csv(enmevalGL@results, paste0(dir,"/results/After_2000/Final/Tables/enmevaGL_resultsFinalFinalFinal.csv"))
+
+# Biomes
+enmevalBiome1 <- ENMevaluate(occ_raw_2000_20sp_biome1, predictorsBiome1, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome1@results
+write.csv(enmevalBiome1@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome1_resultsFinalFinalFinal.csv"))
+
+enmevalBiome7 <- ENMevaluate(occ_raw_2000_20sp_biome7, predictorsBiome7, method="randomkfold", kfolds = 5, n.bg=bgBiome7, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome7@results
+write.csv(enmevalBiome7@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome7_resultsFinalFinalFinal.csv"))
+
+enmevalBiome12 <- ENMevaluate(occ_raw_2000_20sp_biome12, predictorsBiome12, method="randomkfold", kfolds = 5, n.bg=bgBiome12, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome12@results
+write.csv(enmevalBiome12@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome12_results.csv"))
+
+enmevalBiome4 <- ENMevaluate(occ_raw_2000_20sp_biome4, predictorsBiome4, method="randomkfold", kfolds = 5, n.bg=bgBiome4, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome4@results
+write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome4_results.csv"))
+
+# IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
+```
+
+# Dividing occurrence data into training and testing sets for MaxEnt modelling
+```{r training and testing sets}
+# Withholding a 20% sample for testing and 80% for training the model.
+# Global
+set.seed(1)
+fold_global <- kfold(global_locs, k=5)
+occtest_global <- global_locs[fold_global == 1,]
+occtrain_global <- global_locs[fold_global != 1,]
+
+# Biomes
+# 1
+set.seed(1)
+fold_biome1 <- kfold(biome1_locs, k=5)
+occtest_biome1 <- biome1_locs[fold_biome1 == 1,]
+occtrain_biome1 <- biome1_locs[fold_biome1 != 1,]
+
+# 7
+set.seed(1)
+fold_biome7 <- kfold(biome7_locs, k=5)
+occtest_biome7 <- biome7_locs[fold_biome7 == 1,]
+occtrain_biome7 <- biome7_locs[fold_biome7 != 1,]
+
+# 12
+set.seed(1)
+fold_biome12 <- kfold(biome12_locs, k=5)
+occtest_biome12 <- biome12_locs[fold_biome12 == 1,]
+occtrain_biome12 <- biome12_locs[fold_biome12 != 1,]
+
+# 4
+set.seed(1)
+fold_biome4 <- kfold(biome4_locs, k=5)
+occtest_biome4 <- biome4_locs[fold_biome4 == 1,]
+occtrain_biome4 <- biome4_locs[fold_biome4 != 1,]
+```
+
+# Thread 16.4: Global maxent
+```{r}
+# fit model
+global <- maxent(predictorsGL, occtrain_global,a=bgGL,removeDuplicates=TRUE,factors=c("global_biomes","global_iucn_wdpa","global_ifl","global_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true', 'quadratic=true', 'product=true', 'threshold=true', 'hinge=true', 'maximumiterations=5000','betamultiplier=1.5','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=false'),path=paste0(dir,"/output/models/global"));global
+
+# Model results
+global_results <- global@results
+write.csv(global_results,paste0(dir,"/output/models/global/global_results.csv"))
+
+# Jacknife test
+AUCjktglobal<- data.frame(driver=c("Accessibility","Biome","Number of impacted species","Elevation","Forest loss","Intact Forest Landscape","Country income group","Terrestrial mammal species richness","Terrain Ruggedness Index","IUCN protected area","With all drivers"),
+                     
+                        Jacknife=c("Without driver","Without driver","Without driver","Without driver","Without driver","Without driver","Without driver","Without driver","Without driver","Without driver","With all drivers","With only driver","With only driver","With only driver","With only driver","With only driver","With only driver","With only driver","With only driver","With only driver","With only driver","With all drivers"),
+                     
+                        AUC=c(0.795,0.7961,0.7969,0.7992,0.8002,0.8003,0.7859,0.7965,0.7969,0.7879,0.8003,0.6827,0.7232,0.6888,0.5488,0.5952,0.5118,0.5479,0.6902,0.6221,0.5795,0.8003));AUCjktglobal
+
+# lollipop
+AUCjkt_JN <- AUCjktglobal
+
+# Change "Jackknife" value of "Model" 
+AUCjkt_JN$Jacknife [AUCjkt_JN$driver == "With all drivers"] <- c("With only driver", "Without driver")
+
+# reorder factor levels (adjust argument labels also - not shown here)
+# entries are plotted in reverse order, i.e. Model is on top in the plot
+AUCjkt_JN$driver <- factor(AUCjkt_JN$driver, levels = c("Accessibility","Biome","Number of impacted species","Elevation","Forest loss","Intact Forest Landscape","Country income group","Terrestrial mammal species richness","Terrain Ruggedness Index","IUCN protected area","With all drivers"))
+
+# create the lollipop plot
+p4 <- ggplot(AUCjkt_JN, aes(y = driver, x = AUC, fill = Jacknife)) +
+geom_segment(aes(x = 0.5, y = driver, xend = AUC, yend = driver), size=2,color = "grey50") +
+geom_point(aes(color=ifelse(driver %in% c("With all drivers","With all drivers"), "With all drivers",ifelse(driver %in% c("Accessibility","Biome","Number of impacted species","Elevation","Forest loss","Intact Forest Landscape","Country income group","Terrestrial mammal species richness","Terrain Ruggedness Index","IUCN protected area","With all drivers"),""))), size = 10,alpha=0.7,stroke=2,show.legend=FALSE)+
+scale_color_viridis(discrete = TRUE,option = "D")+
+scale_fill_viridis(discrete = TRUE,option = "D")+
+labs(x="", y="Predictors")+
+theme_bw()+
+science_theme+
+xlim(0.5,1.0)+
+facet_wrap(~Jacknife);p4
+ggsave(filename = paste0(dir,"/plots/ExTFig2_Global_Global_JackKnifeAUC.png"), plot = p4, width = 7, height = 5, dpi = 300)
+
+# evaluate model
+#train
+test.train1 <- evaluate(global@models[[1]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train1
+test.train2 <- evaluate(global@models[[2]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train2
+test.train3 <- evaluate(global@models[[3]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train3
+test.train4 <- evaluate(global@models[[4]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train4
+test.train5 <- evaluate(global@models[[5]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train5
+test.train6 <- evaluate(global@models[[6]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train6
+test.train7 <- evaluate(global@models[[7]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train7
+test.train8 <- evaluate(global@models[[8]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train8
+test.train9 <- evaluate(global@models[[9]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train9
+test.train10 <- evaluate(global@models[[10]],p=occtrain_global,a=bgGL,x=predictorsGL);test.train10
+
+# test
+test.test1 <- evaluate(global@models[[1]],p=occtest_global,a=bgGL,x=predictorsGL);test.test1
+test.test2 <- evaluate(global@models[[2]],p=occtest_global,a=bgGL,x=predictorsGL);test.test2
+test.test3 <- evaluate(global@models[[3]],p=occtest_global,a=bgGL,x=predictorsGL);test.test3
+test.test4 <- evaluate(global@models[[4]],p=occtest_global,a=bgGL,x=predictorsGL);test.test4
+test.test5 <- evaluate(global@models[[5]],p=occtest_global,a=bgGL,x=predictorsGL);test.test5
+test.test6 <- evaluate(global@models[[6]],p=occtest_global,a=bgGL,x=predictorsGL);test.test6
+test.test7 <- evaluate(global@models[[7]],p=occtest_global,a=bgGL,x=predictorsGL);test.test7
+test.test8 <- evaluate(global@models[[8]],p=occtest_global,a=bgGL,x=predictorsGL);test.test8
+test.test9 <- evaluate(global@models[[9]],p=occtest_global,a=bgGL,x=predictorsGL);test.test9
+test.test10 <- evaluate(global@models[[10]],p=occtest_global,a=bgGL,x=predictorsGL);test.test10
+
+# plot response curves
+response(global@models[[3]], rug=FALSE,expand=0)# replicate with highest AUC
+
+# plot model covariate contributions
+plot(global@models[[3]])
+
+# Response curves show (and derived from) the mean response of the 10 replicate Maxent runs
+# access
+accessGl <- read.csv(paste0(dir,"/output/models/global/plots/responsecurves/access_prj_only.csv"))
+accessGl$xh <- (accessGl$x)*0.016667
+accessGl <- ggplot(data= accessGl,aes(x=xh,y= y))+geom_line(colour="black", size=2)+
+xlab("")+
+ylab("")+
+theme_bw()+
+ylim(0,1)+
+facet_wrap(~ covariate, scales="free",ncol = 3)+ 
+science_theme_facets; accessGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_accessibility.png"),plot = accessGl, width =10, height = 7, dpi = 300)
+
+# forest loss
+for_lossGl <- read.csv(paste0(dir,"/output/models/global/plots/responsecurves/for_loss_JN_prj_maskf_prop.csv"))
+for_lossGl <- ggplot(data=for_lossGl,aes(x=x,y= y))+geom_line(colour="black", size=2)+xlab("")+ylab("Predicted probability")+theme_bw()+
+ylim(0,1)+facet_wrap(~ covariate, scales="free",ncol = 3)+ 
+science_theme_facets; for_lossGl
+ggsave(filename = paste0(dir,"/plots/ExTFig3_Global_ForestLoss.png"),plot = for_lossGl, width =10, height = 7, dpi = 300)
+
+# country income
+income <- read.csv(paste0(dir,"/output/models/global/plots/responsecurves/income_gp_prj_prj.csv"))
+incomeGl <- ggplot(data=income,aes(reorder(x= x,- y), y= y, fill=income))+
+geom_bar(sta="identity",position=position_dodge(), colour="Black", fill="Black")+
+xlab("")+ylab("Predicted probability")+
+theme_bw()+
+scale_color_viridis(discrete = TRUE,option = "D",alpha=0.7)+
+scale_fill_viridis(discrete = TRUE,option = "D",alpha=0.7)+
+ylim(0,1)+
+facet_wrap(~ covariate, scales="free",ncol = 3)+ 
+science_theme_facets;incomeGl
+ggsave(filename = paste0(dir,"/plots/Figure3_ExTFig3_Global_CountryIncome.png"),plot = incomeGl, width =10, height = 7, dpi = 300)
+
+# Number of species impacted 
+spec_impactedGl <-  read.csv(paste0(dir,"/output/models/global/plots/responsecurves/cum_hum_impact_prj.csv"))
+spec_impactedGl <- ggplot(data= spec_impactedGl,aes(x=x,y= y))+geom_line(colour="black", size=2)+
+xlab("")+ylab("Predicted probability")+
+theme_bw()+
+ylim(0,1)+
+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets;spec_impactedGl
+ggsave(filename = paste0(dir,"/plots/EXTFig3_Global_SpeciesImpacted.png"),plot = spec_impactedGl, width =10, height = 7, dpi = 300)
+
+# biomes
+biomeGL <-  read.csv(paste0(dir,"/output/models/global/plots/responsecurves/biomesNum_prj.csv"))
+dataframe <- as.data.frame.matrix(biomeGL)
+biomeGl <- ggplot(data=dataframe,aes(reorder(x= x,- y), y= y, fill=x))+
+geom_bar(sta="identity",position=position_dodge(), colour="#000000", fill="#000000")+
+xlab("")+ylab("")+
+theme_bw()+
+ylim(0,1)+
+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets; biomeGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_Biome.png"),plot = biomeGl, width =10, height = 7, dpi = 300)
+
+# Species richness
+sp_richGl<-  read.csv(paste0(dir,"/output/models/global/plots/responsecurves/sp_rich_prj.csv"))
+sp_richGl <- ggplot(data= sp_richGl,aes(x=x,y= y))+geom_line(colour="black", size=2)+
+theme_bw()+
+labs(x="",y="Predicted probability")+
+ylim(0,1)+
+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets; sp_richGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_SpeciesRichness.png"),plot = sp_richGl, width =10, height = 7, dpi = 300)
+
+# IUCN protection
+IUCNPAGl <-  read.csv(paste0(dir,"/output/models/global/plots/responsecurves/wdpa_bin_prj.csv"))
+dataframe <- as.data.frame.matrix(IUCNPAGl)
+IUCNPAGl <- ggplot(data=dataframe,aes(reorder(x= x,- y), y= y, fill=x))+
+geom_bar(sta="identity",position=position_dodge(), colour="grey", fill="black")+
+xlab("")+ylab("Predicted probability")+
+theme_bw()+
+ylim(0,1)+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets; IUCNPAGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_IUCNPA.png"),plot = IUCNPAGl, width =10, height = 7, dpi = 300)
+
+# IFL 
+IFLGl <-  read.csv(paste0(dir,"/output/models/global/plots/responsecurves/ifl_bin_prj.csv"))
+dataframe <- as.data.frame.matrix(IFLGl)
+IFLGl <- ggplot(data=dataframe,aes(reorder(x= x,- y), y= y, fill=x))+
+geom_bar(sta="identity",position=position_dodge(), colour="grey", fill="black")+
+xlab("")+ylab("")+
+theme_bw()+
+ylim(0,1)+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets; IFLGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_IFL.png"),plot = IFLGl, width =10, height = 7, dpi = 300)
+
+# elevation
+elevationGl <- read.csv(paste0(dir,"/output/models/global/plots/responsecurves/elevation_prj_maskf.csv"))
+elevationGl <- ggplot(data=elevationGl,aes(x=x,y= y))+geom_line(colour="black", size=2)+xlab("")+ylab("")+theme_bw()+
+ylim(0,1)+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets; elevationGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_Elevation.png"),plot = elevationGl, width =10, height = 7, dpi = 300)
+
+# TRI
+TRIGl <- read.csv(paste0(dir,"/output/models/global/plots/responsecurves/tri_prj_mask_only.csv"))
+TRIGl <- ggplot(data=TRIGl,aes(x=x,y= y))+geom_line(colour="black", size=2)+xlab("")+ylab("")+theme_bw()+
+ylim(0,1)+facet_wrap(~ covariate, scales="free",ncol = 3)+
+science_theme_facets;TRIGl
+ggsave(filename = paste0(dir,"/plots/Figure3_EXTFig3_Global_TRI.png"),plot = TRIGl, width =10, height = 7, dpi = 300)
+
+# with ggpubr
+responsesGL <- ggarrange(incomeGl,biomeGl,sp_richGl,accessGl,IUCNPAGl,TRIGl,spec_impactedGl,elevationGl,for_lossGl,IFLGl,align="hv", ncol=2,nrow=5);responsesGL
+ggsave(filename = paste0(dir,"/plots/ExTFig3A_Global_ResponseCurves.png"),plot = responsesGL, width =12, height = 17, dpi = 300)
+
+# pie chart for permutation importance
+PI <- data.frame(covariate = c("Country income","Biome","Terrestrial mammal richness","Accessibility","Others"),importance = c(23.5,22.6,16.5,14.2,23.2))
+
+# Add label position
+df <- PI %>%
+arrange(desc(importance)) %>%
+mutate(lab.ypos = cumsum(importance) - 0.5*importance)
+
+# with ggplot
+mycols <- c("#000000","white","#2F4F4F","#778899","#808080")
+
+global_PI <- ggplot(data=df,aes(x = "", y = importance, fill=reorder(covariate,-importance))) +
+geom_bar(width = 2, stat = "identity", color = "grey75",show.legend=TRUE) +
+coord_polar("y", start = 0)+
+labs(fill='Permutation importance')+
+scale_fill_manual(values = mycols)+
+science_theme_facets+
+theme_void()
+global_PI
+ggsave(filename = paste0(dir,"/plots/Figure3A_Global_PI_MostImportantDrivers.png"), plot = global_PI, width = 10, height = 7, dpi = 300)
+
+# make prediction
+ppredictorsGl<- predict(global@models[[3]], predictorsGL,progress='text')
+plot(ppredictorsGl)
+writeRaster(ppredictorsGl,filename = paste0(dir,"/output/geo-proc/Predictions/global_prediction.tif"))
+
+# project to EE and write raster
+global_prediction <- raster(paste0(dir,"/output/geo-proc/Predictions/global_prediction.tif"))
+global_prediction_ee = projectRaster(global_prediction, crs = crs_equal_earth, method = "bilinear")
+writeRaster(global_prediction_ee,filename = paste0(dir,"/output/geo-proc/Predictions/global_predictionEE.tif"))
+
+global_predictionEE <- raster(paste0(dir,"/output/geo-proc/Predictions/global_predictionEE.tif"))
+plot(global_predictionEE)
+
+# plot with tmap
+tmap_mode("view")
+tm_shape(ppredictorsGl) + tm_raster(palette = rev(viridis(10)), title = "Maxent, logistic values")+
+tm_layout(main.title = "",
+          compass.type = "arrow",
+          legend.title.size = 0.8,
+          legend.text.size = 0.6, 
+          legend.bg.color = "white",
+          legend.position = c("right", "bottom"),
+          inner.margins = c(0.05,0.05,0.05,0.1),
+          legend.frame = TRUE)+
+tm_compass(position = c("left", "bottom"),size = 1.5) +
+tm_scale_bar(position=c("left", "bottom"), text.size = 0.7) +
+tm_credits("AUC = 0.853", position=c("left", "top"))
+
+#  Prediction too big to plot on gpplot...first aggregate it to get a lower resolution  (larger cells)
+Global_prediction <- raster(paste0(dir,"/output/geo-proc/Predictions/global_predictionEE.tif"))
+Global_prediction_agg <- raster::aggregate(Global_prediction,fact=10, fun=mean, expand=FALSE, na.rm=TRUE);writeRaster(Global_prediction_agg,paste0(dir, "/output/geo-proc/Predictions/global_predictionEE_agg_10.tif"))
+
+# with ggplot
+global_prediction  <- raster(paste0(dir,"/output/geo-proc/Predictions/global_predictionEE_agg_10.tif"));plot(global_prediction)
+Globalprediction_spdf <- as(global_prediction, "SpatialPixelsDataFrame")
+Globalprediction_df <- as.data.frame(Globalprediction_spdf)
+colnames(Globalprediction_df) <- c("values", "x", "y")
+
+Globalprediction_plot <- ggplot() +
+geom_tile(data=Globalprediction_df, aes(x=x, y=y, fill=values), alpha=0.8)+
+geom_sf(data = world, fill=NA, colour = "lightgray", size = 0.2)+
+scale_fill_viridis(name="Predicted suitability") +
+science_theme_maps+
+theme_map() +
+theme(legend.position="bottom") +
+theme(legend.key.width=unit(2, "cm"));Globalprediction_plot
+
+Globalprediction_plot_ee <- Globalprediction_plot + coord_sf(crs = sf::st_crs(crs_equal_earth));Globalprediction_plot_ee
+
+# extracting legend
+global_prediction_NoNA <- as.data.frame(na.omit(values(global_prediction))); head(global_prediction_NoNA)
+my_datal <- melt(global_prediction_NoNA, measure.vars = "na.omit(values(global_prediction))", variable.name = "cell", value.name = "Global_prediction");head(my_datal)
+
+global_prediction_plot <- ggplot(my_datal, aes(x=cell, y= Global_prediction))+
+geom_point(position = position_jitter(width = 0.25), size = 0.01, alpha=0.7, aes(colour=Global_prediction))+
+geom_violin(position = position_nudge(x = 0, y = 0), alpha = 0.5, adjust =1, trim = T, width = .5, fill= "#A4A4A4")+
+geom_boxplot(aes(x=cell, y= Global_prediction), outlier.shape = NA, alpha = 0.5, width = 0.02, colour = "black")+
+scale_color_viridis(discrete=F, option = "D") +
+scale_fill_viridis(discrete=F, option = "D")+
+ylab("")+
+ylim(0, 1)+
+xlab("")+
+theme_update(text = element_text(size=12))+
+guides(fill = FALSE, colour = FALSE) +
+theme_bw()+
+science_theme_facets
+global_prediction_plot
+ggsave(filename = paste0(dir,"/plots/Figure2D_Global_PredictionLegend.png"),plot = global_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
 # Figure
@@ -880,7 +1990,13 @@ Fig2
 ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
 ```
 
-
-
+```{r sessionInfo}
+## DO NOT REMOVE!
+## We store the settings of your computer and the current versions of the
+## packages used to allow for reproducibility
+Sys.time()
+#git2r::repository() ## uncomment if you are using GitHub
+sessionInfo()
+```
 
 
