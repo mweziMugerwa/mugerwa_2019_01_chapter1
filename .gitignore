@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+data-raw/
+docs/
+output/
+plots/
+
+
