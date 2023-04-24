@@ -1452,7 +1452,7 @@ categorical <- biomes + wdpa + income + ifl
 # plot = categorical, width =15, height = 9, dpi = 300)
 ```
 
-# Generate background points for use in the maxent model
+# Generate background points for use in the maxent models
 ```{r generating background points}
 # create raster stacks for different models
 
