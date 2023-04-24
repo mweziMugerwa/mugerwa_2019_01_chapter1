@@ -1560,6 +1560,7 @@ occtest_biome4 <- biome4_locs[fold_biome4 == 1,]
 occtrain_biome4 <- biome4_locs[fold_biome4 != 1,]
 ```
 
+
 #  Global maxent
 ```{r Global MaxEnt}
 # fit model
