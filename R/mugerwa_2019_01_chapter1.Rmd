@@ -1494,7 +1494,6 @@ bgBiome12 <- fastRandomPoints(predictorsBiome12, 10000)
 bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
 ```
 
-
 # Model evaluation
 ```{r model evaluation with ENMevaluate}
 # We use function ENMevaluate that allows us to objectively select what model settings to use when running MaxEnt
