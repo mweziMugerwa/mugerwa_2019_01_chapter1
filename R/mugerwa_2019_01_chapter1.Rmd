@@ -1814,6 +1814,7 @@ global_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure2D_Global_PredictionLegend.png"),plot = global_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
+
 # Biome1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt
 ```{r biome 1 maxent}
 # fit model
