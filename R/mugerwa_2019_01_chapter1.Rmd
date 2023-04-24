@@ -1524,6 +1524,7 @@ write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/en
 # IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
 ```
 
+
 # Dividing occurrence data into training and testing sets for MaxEnt modelling
 ```{r training and testing sets}
 # Withholding a 20% sample for testing and 80% for training the model.
