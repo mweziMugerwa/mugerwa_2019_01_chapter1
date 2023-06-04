@@ -58,6 +58,7 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 *Research locations' Lat/Long data + global environmental (predictor) remote sensed datasets:1) country income, 2) IUCN protected area, 3) forest loss, 4) number of species impacted by human activity, 5) terrestrial mammal diversity, 6) remoteness, 7) Intact Forest Landscape (IFL), 8) biome, 9) elevation, and 10) Terrain Ruggedness Index (TRI).*
 
 
+
 # Setup
 ```{r setting up project in D6 style}
 # create project 
