@@ -571,142 +571,6 @@ tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
 wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
 ```
 
-# Raw data processing#omit
-```{r generating rasters from vector datasets}
-
-# loading vector polygons
-landmass <- landmass
-income <- world
-wdpa <- wdpa
-biomes <- biomes
-ifl <- ifl
-hum_impact_spp <- hum_impact_spp
-
-# assigning a projection to the data
-landmass_prj <- st_transform(landmass, crs(prj))
-income_prj <- st_transform(world, crs(prj))
-wdpa_prj <- st_transform(wdpa, crs(prj))
-biomes_prj <- st_transform(biomes, crs(prj))
-ifl_prj <- st_transform(ifl, crs(prj))
-hum_impact_spp_prj <- st_transform(hum_impact_spp, crs(prj))
-
-# Tell R which features are factors 
-income$INCOME_GRPf <- as.factor(income$INCOME_GRP)
-biomes$BIOME_NUMf <- as.factor(biomes$BIOME_NUM)
-ifl$NAME_2 <- as.factor(ifl$Area_ha)
-landmass$featurecla <- as.factor(landmass$featurecla)
-wdpa$IUCN_CAT <- as.factor(wdpa$IUCN_CAT)
-hum_impact_spp$cum_impact <- as.factor(hum_impact_spp$cum_impact)
-
-# define RasterLayer object
-r.raster <- raster()
- 
-# define raster extent, prj and pixel size
-extent <- extent(-180, 180, -90, 90)
-extent(r.raster) <- extent(extent)
-crs(r.raster) <-crs(prj)
-res(r.raster) <- 0.008333
-
-# rasterize
-start <- Sys.time()
-income.r <- fasterize(sf = income, raster = r.raster, field = 'AV_INC_GP', fun = "sum")
-ifl.r <- fasterize(sf = ifl, raster = r.raster, field = 'Area_ha', fun = "sum")
-landmass.r <- fasterize(sf = landmass, raster = r.raster, field = 'featurecla', fun = "sum")
-wdpa.r <- fasterize(sf = wdpa, raster = r.raster, field = 'IUCN_CAT', fun = "sum")
-biomesNum.r <- fasterize(sf = biomes, raster = r.raster, field = 'BIOME_NUMf', fun = "sum")
-hum_impact_spp.r <- fasterize(sf = hum_impact_spp_prj, raster = r.raster, field = 'cum_impact', fun = "sum")
-end <- Sys.time()
-end - start
-
-# plots
-plot(income.r)
-plot(ifl.r)
-plot(landmass.r)
-plot(wdpa.r)
-plot(biomesNum.r)
-plot(hum_impact_spp.r)
-
-# write rasters
-# writeRaster(income.r, paste0(dir, "/data-raw/geo-raw/raster/country_income_group.tif"))
-# writeRaster(ifl.r, paste0(dir, "/data-raw/geo-raw/raster/ifl.tif"))
-# writeRaster(wdpa.r, paste0(dir, "/data-raw/geo-raw/raster/wdpa.tif"))
-#writeRaster(landmass.r, paste0(dir, "/data-raw/geo-raw/raster/landmass.tif"))
-# writeRaster(biomesNum.r, paste0(dir, "/data-raw/geo-raw/raster/biomes.tif"))
-# writeRaster(hum_impact_spp.r, paste0(dir, "/data-raw/geo-raw/raster/no_hum_impact_species.r.tiff"))
-```
-
-
-# Raw data processing#omit
-```{r masking to global landmass}
-# making predictors binary (1/0)
-# ifl.binary <- !is.na(ifl)
-# wdpa.binary <- !is.na(wdpa)
-
-# mask ifl with ocean (ocean is already na in world raster)
-# iflstatus <-  raster::mask(x = ifl.binary, mask = landmass)
-# wdpastatus <-  raster::mask(x = wdpa.binary, mask = landmass)
-# elevation <-  raster::mask(x = elevation_raw, mask = landmass)
-# forloss <-  raster::mask(x = forloss_raw, mask = landmass)
-
-# write rasters
-# writeRaster(iflstatus,paste0(dir, "/data-raw/geo-raw/raster/ifl.tif"))
-# writeRaster(wdpastatus,paste0(dir, "/data-raw/geo-raw/raster/wdpa.tif"))
-# writeRaster(elevation,paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
-# writeRaster(forloss,paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
-```
-
-
-# Raw data processing#omit
-```{r masked data and creating TRI}
-# elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
-# forloss_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
-# wdpa_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/wdpa_mask.tif"))
-# ifl_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/ifl_mask.tif"))
-
-# creating TRI
-# extent(elevation_mask) <- extent(extent)
-# crs(elevation_mask) <-crs(prj)
-# extract tri from elevation
-# tri <- terrain(elevation_mask, opt="TRI")
-# writeRaster(tri, paste0(dir, "/output/geo-proc/rasters/mask/tri_mask.tif"))
-# tri_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/tri_mask.tif"))
-```
-
-
-# Raw data processing#omit
-```{r reprojecting rasters}
-# access
-projectRaster(access_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_accessibility.tif")) 
-
-# biomes
-projectRaster(biomes_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_biomes.tif")) 
-
-# country income group
-projectRaster(income_raw, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_country_income_group.tif"))
-
-# elevation
-projectRaster(elevation_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_elevation.tif")) 
-
-# forest loss
-projectRaster(forloss_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_forest_loss.tif")) 
-
-# hum_impact_spp
-projectRaster(hum_impact_spp_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_hum_impact_spp.tif")) 
-
-# sp_rich
-projectRaster(spp_rich_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_species_rich.tif")) 
-
-# wdpa
-projectRaster(wdpa_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_iucn_wdpa.tif")) 
-
-# ifl
-projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_ifl.tif")) 
-
-# tri
-projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
-```
-
-
 # Data
 ```{r processed rasters:Global}
 # access
@@ -740,63 +604,6 @@ wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_wdpa.tif"
 tri <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_tri.tif"))
 ```
 
-# Data#OMIT
-```{r preparing covariates for biome1: tropical moist forests}
-
-# selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
-# biome1 <- biomes[biomes$BIOME_NUM == 1,];head(biome1)
-# plot(as(biome1, "sf"))
-
-# Create a raster out of it; define RasterLayer object
-# r.raster <- raster()
-
-# define raster extent, prj and pixel size
-# extent <- extent(-180, 180, -90, 90)
-# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-
-# extent(r.raster) <- extent(extent)
-# crs(r.raster) <-crs(prj)
-# res(r.raster) <- 0.008333
-
-# rasterize
-# start <- Sys.time()
-# biome1.r <- fasterize(sf = biome1, raster = r.raster,field = NULL,fun = "sum")
-# end<- Sys.time()
-# end - start
- 
-# write raster
-# writeRaster(biome1.r, paste0(dir, "/data-raw/geo-raw/raster/biome1.tif"))
- 
-# read in raster
-# biome1 <- raster(paste0(dir, "/data-raw/geo-raw/raster/biome1.tif"));plot(biome1)
-
-# load biome shapefile 1 created from the raster. This is done in qgis
-biome1.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome1.shp"));names(biome1.shp);head(biome1.shp)
-
-# make occurrence data spatial, assign coordinate reference system to spatial points
-coordinates(occ_raw_2000_20sp_biome1) <- ~ lon + lat
-
-# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
-crs1 <- CRS("+init=epsg:4326");crs1
-
-# add crs projection to occurrence data
-crs(occ_raw_2000_20sp_biome1) <- crs1
-plot(occ_raw_2000_20sp_biome1)
-
-# create a raster stack to be masked with biome1
-predictorsBiome1 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,ifl,sp_rich,wdpa,tri)
-
-# crop raster covariates in a stack by polygon (shapefile)
-biome1_studyArea <- crop(predictorsBiome1,extent(biome1.shp))
-
-# then mask the study area above with biome1
-biome1_studyArea_Mask <- raster::mask(biome1_studyArea,biome1.shp)
-
-# save the new covariate rasters (masked to biome) as .tif
-# writeRaster(biome1_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome1/",names(biome1_studyArea_Mask),".tif"),bylayer=TRUE)
-```
-
-
 # Data
 ```{r processed rasters for biome 1: tropical moist forests}
 # access
@@ -825,61 +632,6 @@ biome1_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_
 
 # tri
 biome1_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_tri.tif"))
-```
-
-# Data#OMIT
-```{r preparing covariates for biome7: tropical grasslands}
-# selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
-# biome7 <- biomes[biomes$BIOME_NUM == 7,];head(biome7)
-# biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
-
-# Create a raster outof it; define RasterLayer object
-# r.raster <- raster()
-
-# define raster extent, prj and pixel size
-# extent <- extent(-180, 180, -90, 90)
-# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-
-# extent(r.raster) <- extent(extent)
-# crs(r.raster) <-crs(prj)
-# res(r.raster) <- 0.008333
-
-# rasterize
-# start <- Sys.time()
-# biome7.r <- fasterize(sf = biome7, raster = r.raster,field = NULL,fun = "sum")
-# end<- Sys.time()
-# end - start
- 
-# write raster
-# writeRaster(biome7.r, paste0(dir, "/data-raw/geo-raw/raster/biome7.tif"))
- 
-# read in raster
-# biome7 <- raster(paste0(dir, "/data-raw/geo-raw/raster/biome7.tif"));plot(biome7)
-
-# load biome shapefile 1 created from the raster. This is done in qgis
-biome7.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome7.shp"));names(biome7.shp);head(biome7.shp)
-
-# make occurrence data spatial, assign coordinate reference system to spatial points
-coordinates(occ_raw_2000_20sp_biome7) <- ~ lon + lat
-
-# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
-crs1 <- CRS("+init=epsg:4326");crs1
-
-# add crs projection to occurrence data
-crs(occ_raw_2000_20sp_biome7) <- crs1
-plot(occ_raw_2000_20sp_biome7)
-
-# create a raster stack to be masked with biome4
-# predictorsBiome7 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,ifl,sp_rich,wdpa,tri)
-
-# crop raster covariates in a stack by polygon (shapefile)
-biome7_studyArea <- crop(predictorsBiome7,extent(biome7.shp))
-
-# then mask the study area above with biome4
-biome7_studyArea_Mask <- raster::mask(biome7_studyArea,biome7.shp)
-
-# save the new covariate rasters (masked to biome) as .tif
-# writeRaster(biome7_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome7/",names(biome7_studyArea_Mask),".tif"),bylayer=TRUE)
 ```
 
 # Data
@@ -912,62 +664,6 @@ biome7_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_
 biome7_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_tri.tif"))
 ```
 
-
-# Data#OMIT
-```{r preparing covariates for biome12: Mediterranean forests}
-# selecting out Mediterranean Forests, Woodlands & Scrub biome
-# biome12 <- biomes[biomes$BIOME_NUM == 12,];head(biome12)
-# biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
-
-# Create a raster out of it; define RasterLayer object
-# r.raster <- raster()
-
-# define raster extent, prj and pixel size
-# extent <- extent(-180, 180, -90, 90)
-# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-
-# extent(r.raster) <- extent(extent)
-# crs(r.raster) <-crs(prj)
-# res(r.raster) <- 0.008333
-
-# rasterize
-# start <- Sys.time()
-# biome12.r <- fasterize(sf = biome12, raster = r.raster,field = NULL,fun = "sum")
-# end<- Sys.time()
-# end - start
- 
-# write raster
-# writeRaster(biome12.r, paste0(dir, "/data-raw/geo-raw/raster/biome12.tif"))
- 
-# read in raster
-# biome12 <- raster(paste0(dir, "/data-raw/geo-raw/raster/biome12.tif"));plot(biome12)
-
-# load biome shapefile 1 created from the raster. This is done in qgis
-biome12.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome12.shp"));names(biome12.shp);head(biome12.shp)
-# make occurrence data spatial, assign coordinate reference system to spatial points
-# coordinates(occ_raw_2000_20sp_biome12) <- ~ lon + lat
-
-# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
-# crs1 <- CRS("+init=epsg:4326");crs1
-
-# add crs projection to occurrence data
-# crs(occ_raw_2000_20sp_biome12) <- crs1
-# plot(occ_raw_2000_20sp_biome12)
-
-# create a raster stack to be masked with biome4
-# predictorsBiome12 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,ifl,sp_rich,wdpa,tri)
-
-# crop raster covariates in a stack by polygon (shapefile)
-# biome12_studyArea <- crop(predictorsBiome12,extent(biome12.shp))
-
-# then mask the study area above with biome12
-# biome12_studyArea_Mask <- raster::mask(biome12_studyArea,biome12.shp)
-
-# save the new covariate rasters (masked to biome) as .tif
-# writeRaster(biome12_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome12/",names(biome12_studyArea_Mask),".tif"),bylayer=TRUE)
-```
-
-
 # Data
 ```{r processed rasters for biome12: Mediterranean forests}
 # access
@@ -998,63 +694,6 @@ biome12_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome
 biome12_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_tri.tif"))
 ```
 
-
-# Data# OMIT
-```{r preparing covariates for biome4: Temperate forests}
-# selecting out Temperate mixed forests, and plotting it
-# biome4 <- biomes[biomes$BIOME_NUM == 4,];head(biome4)
-# # biome1.set2 <- subset(biomes,BIOME_NUM == 1);plot(biome1.set2)
-# 
-# # Create a raster out of it; define RasterLayer object
-# r.raster <- raster()
-# 
-# # define raster extent, prj and pixel size
-# extent <- extent(-180, 180, -90, 90)
-# prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-# 
-# extent(r.raster) <- extent(extent)
-# crs(r.raster) <-crs(prj)
-# res(r.raster) <- 0.008333
-# 
-# # rasterize
-# start <- Sys.time()
-# biome4.r <- fasterize(sf = biome4, raster = r.raster,field = NULL,fun = "sum")
-# end<- Sys.time()
-# end - start
- 
-# # write raster
-# writeRaster(biome4.r, paste0(dir, "/data-raw/geo-raw/raster/biome4.tif"))
- 
-# read in raster
-# biome4 <- raster(paste0(dir, "/data-raw/geo-raw/raster/biome4.tif"));plot(biome4)
-
-# load biome shapefile 1 created from the raster. This is done in qgis
-biome4.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome4.shp"));names(biome4.shp);head(biome4.shp)
-
-# make occurrence data spatial, assign coordinate reference system to spatial points
-# coordinates(occ_raw_2000_20sp_biome4) <- ~ lon + lat
-
-# define the coordinate system (crs projection) # full reference list here: http://spatialrefrence.org/ref/
-# crs1 <- CRS("+init=epsg:4326");crs1
-
-# add crs projection to occurrence data
-# crs(occ_raw_2000_20sp_biome4) <- crs1
-# plot(occ_raw_2000_20sp_biome4)
-
-# create a raster stack to be masked with biome4
-# predictorsBiome4 <- raster::stack(access,income,elevation,for_loss,cum_hum_impact,ifl,sp_rich,wdpa,tri)
-
-# crop raster covariates in a stack by polygon (shapefile)
-# biome4_studyArea <- crop(predictorsBiome4,extent(biome4.shp))
-
-# then mask the study area above with biome4
-# biome4_studyArea_Mask <- raster::mask(biome4_studyArea,biome4.shp)
-
-# save the new covariate rasters (masked to biome) as .tif
-# writeRaster(biome4_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome4/",names(biome4_studyArea_Mask),".tif"),bylayer=TRUE)
-```
-
-
 # Data
 ```{r processed rasters for biome4: Temperate forests}
 # access
@@ -1084,7 +723,6 @@ biome4_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_
 # tri
 biome4_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_tri.tif"))
 ```
-
 
 # Data
 ```{r Final data tables}
@@ -1123,7 +761,6 @@ corplot
 # save plot
 # ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"), plot = corplot, width = 10, height = 7, dpi = 300)
 ```
-
 
 # Visualising distribution of avialable vs. locations
 ```{r data distribution between available vs. locations }
@@ -1471,7 +1108,6 @@ categorical <- biomes + wdpa + income + ifl
 # plot = categorical, width =15, height = 9, dpi = 300)
 ```
 
-
 # Generate background points for use in the maxent models
 ```{r generating background points}
 # create raster stacks for different models
@@ -1498,7 +1134,6 @@ bgBiome7 <- fastRandomPoints(predictorsBiome7, 10000)
 bgBiome12 <- fastRandomPoints(predictorsBiome12, 10000)
 bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
 ```
-
 
 # Model evaluation
 ```{r model evaluation with ENMevaluate}
@@ -1529,7 +1164,6 @@ write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/en
 
 # IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
 ```
-
 
 # Dividing occurrence data into training and testing sets for MaxEnt modelling
 ```{r training and testing sets}
@@ -1565,8 +1199,6 @@ fold_biome4 <- kfold(biome4_locs, k=5)
 occtest_biome4 <- biome4_locs[fold_biome4 == 1,]
 occtrain_biome4 <- biome4_locs[fold_biome4 != 1,]
 ```
-
-
 
 #  Global maxent
 ```{r Global MaxEnt}
@@ -1821,8 +1453,6 @@ global_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure2D_Global_PredictionLegend.png"),plot = global_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
-
-
 # Biome1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt
 ```{r biome 1 maxent}
 # fit model
@@ -2067,7 +1697,6 @@ biome1_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure3A1_Biome1_PredictionLegend.png"),plot = biome1_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
-
 # Biome7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt
 ```{r biome 7 maxent}
 # fit model
@@ -2311,7 +1940,6 @@ biome7_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A3_Biome7_PredictionLegend.png"),plot = biome7_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
-
 # Biomes12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt 
 ```{r biome 12 maxent}
 # fit model:
@@ -2551,7 +2179,6 @@ biome12_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A4_Biome12_PredictionLegend.png"),plot = biome12_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
-
 # Biome4 (Temperate Broadleaf & Mixed Forests) MaxEnt
 ```{r biome 4 maxent}
 biome4 <- maxent(predictorsBiome4,occtrain_biome4,a=bgBiome4,removeDuplicates=TRUE,factors=c("biome4_ifl","biome4_iucn_wdpa","biome4_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true','maximumiterations=5000','betamultiplier=4.0','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=FALSE'),path=paste0(dir,"/output/models/biome4"));biome4
@@ -2790,7 +2417,6 @@ biome4_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure3A2_Biome4_PredictionLegend.png"),plot = biome4_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
-
 # Creating an 'Aichi map': Biome 1 (Tropical & Subtropical Moist Broadleaf Forests)
 ```{r biome 1 Aichi map}
 
@@ -2827,7 +2453,6 @@ writeRaster(aichibiome1_map_ras_ee,filename = paste0(dir,"/output/geo-proc/aichi
 aichibiome1_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome1aichi_map_FinalEETEST.tif"))
 plot(aichibiome1_ee)
 ```
-
 
 # Creating an 'Aichi map': Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs)
 ```{r biome 7 Aichi map}
@@ -2866,7 +2491,6 @@ aichibiome7_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome7aichi_map
 plot(aichibiome7_ee)
 ```
 
-
 # Creating an 'Aichi map': Biome 12 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 12 Aichi map}
 
@@ -2903,7 +2527,6 @@ writeRaster(aichibiome12_map_ras_ee,filename = paste0(dir,"/output/geo-proc/aich
 aichibiome12_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome12aichi_map_FinalEE.tif"))
 plot(aichibiome12_ee)
 ```
-
 
 # Creating an 'Aichi map': Biome 4 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 4 Aichi map}
@@ -2943,7 +2566,6 @@ aichibiome4_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome4aichi_map
 plot(aichibiome4_ee)
 ```
 
-
 # Creating a biodcrisis map: Biome 1
 ```{r biome 1 biodcrisis' map}
 # normalize covariates
@@ -2968,7 +2590,6 @@ writeRaster(biodcrisisbiome1_map_ras_ee,filename = paste0(dir,"/output/geo-proc/
 biodcrisisbiome1_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome1biodcrisis_map_FinalEE.tif"))
 plot(biodcrisisbiome1_ee)
 ```
-
 
 # Creating a biodcrisis map: Biome 7
 ```{r biome 7 biodcrisis' map}
@@ -2995,7 +2616,6 @@ biodcrisisbiome7_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome
 plot(biodcrisisbiome7_ee)
 ```
 
-
 # Creating a biodcrisis map: Biome 12
 ```{r biome 12 biodcrisis' map}
 # normalize covariates
@@ -3021,7 +2641,6 @@ biodcrisisbiome12_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biom
 plot(biodcrisisbiome12_ee)
 ```
 
-
 # Creating a biodcrisis map: Biome 4
 ```{r biome 4 biodcrisis' map}
 # normalize covariates
@@ -3046,7 +2665,6 @@ writeRaster(biodcrisisbiome4_map_ras_ee,filename = paste0(dir,"/output/geo-proc/
 biodcrisisbiome4_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome4biodcrisis_map_FinalEE.tif"))
 plot(biodcrisisbiome4_ee)
 ```
-
 
 # Creating a biodcrisis + camera allocation bivariate map: Biome 1 # Doesn't work in Rstudio
 ```{r biome 1 bivariate plots + with scatter}
@@ -3169,7 +2787,6 @@ p3
 ggsave(filename = paste0(dir,"/plots/Fig5f_matrix_scatter.png"), plot = p3, width = 7, height = 5, dpi = 300)
 ```
 
-
 # Creating a bivariate map: Biome 1
 ```{r biome 1 bivariate plots + with scatter}
 # load in the Biome1 aichi map
@@ -3285,7 +2902,6 @@ p3
 ggsave(filename = paste0(dir,"/plots/Fig5f_matrix_scatter.png"), plot = p3, width = 7, height = 5, dpi = 300)
 ```
 
-
 # Creating a bivariate map: Biome 7
 ```{r biome 7 bivariate plots + with scatter}
 # load in the Biome7 aichi map
@@ -3400,7 +3016,6 @@ p4
 ggsave(filename = paste0(dir,"/plots/Fig5i_matrix_scatter.png"), plot = p4, width = 7, height = 5, dpi = 300)
 ```
 
-
 # Creating a bivariate map: Biome 12
 ```{r biome 12 bivariate plots + with scatter}
 # load in the Biome12 aichi map
@@ -3514,7 +3129,6 @@ p5
 # save
 ggsave(filename = paste0(dir,"/plots/Fig5l_matrix_scatter.png"), plot = p5, width = 7, height = 5, dpi = 300)
 ```
-
 
 # Creating a bivariate map: Biome 4
 ```{r biome 4 bivariate plots + with scatter}
@@ -3636,7 +3250,6 @@ p6
 ggsave(filename = paste0(dir,"/plots/Fig5o_matrix_scatter.png"), plot = p6, width = 7, height = 5, dpi = 300)
 ```
 
-
 # Creating disparity figures for Biomes#OBSELETE
 ```{r disparity random and locations (also for figure 4)}
 
@@ -3756,7 +3369,6 @@ biome4_aichi_used_unused
 # save
 ggsave(filename = paste0(dir,"/plots/Fig5n_biodcrisis_matrix_scatter.png"), plot = biome4_aichi_used_unused, width = 7, height = 5, dpi = 300)
 ```
-
 
 # Creating disparity figures for Biomes
 ```{r disparity random and locations (also for figure 4)}
@@ -3878,7 +3490,6 @@ biome4_aichi_used_unused
 ggsave(filename = paste0(dir,"/plots/Fig5n_biodcrisis_matrix_scatter.png"), plot = biome4_aichi_used_unused, width = 7, height = 5, dpi = 300)
 ```
 
-
 # Percent of locations in the different Aichi quintiles for all biomes
 ```{r percent of locs and aichi targets (also for figure 4)}
 # biomes and aichi
@@ -3918,7 +3529,6 @@ biomes_aichi_quintiles
 ggsave(filename = paste0(dir,"/plots/locs_biomes_Aichi_disparity.png"), plot = biomes_aichi_quintiles, width = 9, height = 5, dpi = 300)
 ```
 
-
 # Percent of locations in the different Aichi quintiles for all biomes
 ```{r percent of locs and aichi targets (also for figure 4)}
 # biomes and aichi
@@ -3957,7 +3567,6 @@ science_theme_distribution_diparity
 biomes_biodcrisis_quintiles
 ggsave(filename = paste0(dir,"/plots/locs_biomes_biodcrisis_disparity.png"), plot = biomes_biodcrisis_quintiles, width = 9, height = 5, dpi = 300)
 ```
-
 
 # Figure
 ```{r Number of studies, echo=TRUE}
