@@ -634,6 +634,7 @@ plot(hum_impact_spp.r)
 # writeRaster(hum_impact_spp.r, paste0(dir, "/data-raw/geo-raw/raster/no_hum_impact_species.r.tiff"))
 ```
 
+
 # Raw data processing#omit
 ```{r masking to global landmass}
 # making predictors binary (1/0)
@@ -653,6 +654,7 @@ plot(hum_impact_spp.r)
 # writeRaster(forloss,paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
 ```
 
+
 # Raw data processing#omit
 ```{r masked data and creating TRI}
 # elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
@@ -668,6 +670,7 @@ plot(hum_impact_spp.r)
 # writeRaster(tri, paste0(dir, "/output/geo-proc/rasters/mask/tri_mask.tif"))
 # tri_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/tri_mask.tif"))
 ```
+
 
 # Raw data processing#omit
 ```{r reprojecting rasters}
@@ -701,6 +704,7 @@ projectRaster(ifl_mask, humpop_raw,0.008333, projection, method="ngb", alignOnly
 # tri
 projectRaster(tri_mask, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_tri.tif")) 
 ```
+
 
 # Data
 ```{r processed rasters:Global}
@@ -790,6 +794,7 @@ biome1_studyArea_Mask <- raster::mask(biome1_studyArea,biome1.shp)
 # save the new covariate rasters (masked to biome) as .tif
 # writeRaster(biome1_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome1/",names(biome1_studyArea_Mask),".tif"),bylayer=TRUE)
 ```
+
 
 # Data
 ```{r processed rasters for biome 1: tropical moist forests}
@@ -906,6 +911,7 @@ biome7_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_
 biome7_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_tri.tif"))
 ```
 
+
 # Data#OMIT
 ```{r preparing covariates for biome12: Mediterranean forests}
 # selecting out Mediterranean Forests, Woodlands & Scrub biome
@@ -960,6 +966,7 @@ biome12.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome12.shp"));names(bi
 # writeRaster(biome12_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome12/",names(biome12_studyArea_Mask),".tif"),bylayer=TRUE)
 ```
 
+
 # Data
 ```{r processed rasters for biome12: Mediterranean forests}
 # access
@@ -989,6 +996,7 @@ biome12_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome
 # tri
 biome12_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_tri.tif"))
 ```
+
 
 # Data# OMIT
 ```{r preparing covariates for biome4: Temperate forests}
@@ -1045,6 +1053,7 @@ biome4.shp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/biome4.shp"));names(biom
 # writeRaster(biome4_studyArea_Mask,filename=paste0(dir,"/output/geo-proc/rasters/biomes/biome4/",names(biome4_studyArea_Mask),".tif"),bylayer=TRUE)
 ```
 
+
 # Data
 ```{r processed rasters for biome4: Temperate forests}
 # access
@@ -1074,6 +1083,7 @@ biome4_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_
 # tri
 biome4_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_tri.tif"))
 ```
+
 
 # Data
 ```{r Final data tables}
@@ -1112,6 +1122,7 @@ corplot
 # save plot
 # ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"), plot = corplot, width = 10, height = 7, dpi = 300)
 ```
+
 
 # Visualising distribution of avialable vs. locations
 ```{r data distribution between available vs. locations }
@@ -1459,6 +1470,7 @@ categorical <- biomes + wdpa + income + ifl
 # plot = categorical, width =15, height = 9, dpi = 300)
 ```
 
+
 # Generate background points for use in the maxent models
 ```{r generating background points}
 # create raster stacks for different models
@@ -1485,6 +1497,7 @@ bgBiome7 <- fastRandomPoints(predictorsBiome7, 10000)
 bgBiome12 <- fastRandomPoints(predictorsBiome12, 10000)
 bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
 ```
+
 
 # Model evaluation
 ```{r model evaluation with ENMevaluate}
@@ -1515,6 +1528,7 @@ write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/en
 
 # IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
 ```
+
 
 # Dividing occurrence data into training and testing sets for MaxEnt modelling
 ```{r training and testing sets}
@@ -1550,6 +1564,7 @@ fold_biome4 <- kfold(biome4_locs, k=5)
 occtest_biome4 <- biome4_locs[fold_biome4 == 1,]
 occtrain_biome4 <- biome4_locs[fold_biome4 != 1,]
 ```
+
 
 
 #  Global maxent
@@ -1806,6 +1821,7 @@ ggsave(filename = paste0(dir,"/plots/Figure2D_Global_PredictionLegend.png"),plot
 ```
 
 
+
 # Biome1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt
 ```{r biome 1 maxent}
 # fit model
@@ -2050,6 +2066,7 @@ biome1_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure3A1_Biome1_PredictionLegend.png"),plot = biome1_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
+
 # Biome7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt
 ```{r biome 7 maxent}
 # fit model
@@ -2293,6 +2310,7 @@ biome7_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A3_Biome7_PredictionLegend.png"),plot = biome7_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
+
 # Biomes12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt 
 ```{r biome 12 maxent}
 # fit model:
@@ -2532,6 +2550,7 @@ biome12_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A4_Biome12_PredictionLegend.png"),plot = biome12_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
+
 # Biome4 (Temperate Broadleaf & Mixed Forests) MaxEnt
 ```{r biome 4 maxent}
 biome4 <- maxent(predictorsBiome4,occtrain_biome4,a=bgBiome4,removeDuplicates=TRUE,factors=c("biome4_ifl","biome4_iucn_wdpa","biome4_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true','maximumiterations=5000','betamultiplier=4.0','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=FALSE'),path=paste0(dir,"/output/models/biome4"));biome4
@@ -2770,6 +2789,7 @@ biome4_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure3A2_Biome4_PredictionLegend.png"),plot = biome4_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
+
 # Creating an 'Aichi map': Biome 1 (Tropical & Subtropical Moist Broadleaf Forests)
 ```{r biome 1 Aichi map}
 
@@ -2806,6 +2826,7 @@ writeRaster(aichibiome1_map_ras_ee,filename = paste0(dir,"/output/geo-proc/aichi
 aichibiome1_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome1aichi_map_FinalEETEST.tif"))
 plot(aichibiome1_ee)
 ```
+
 
 # Creating an 'Aichi map': Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs)
 ```{r biome 7 Aichi map}
@@ -2844,6 +2865,7 @@ aichibiome7_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome7aichi_map
 plot(aichibiome7_ee)
 ```
 
+
 # Creating an 'Aichi map': Biome 12 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 12 Aichi map}
 
@@ -2880,6 +2902,7 @@ writeRaster(aichibiome12_map_ras_ee,filename = paste0(dir,"/output/geo-proc/aich
 aichibiome12_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome12aichi_map_FinalEE.tif"))
 plot(aichibiome12_ee)
 ```
+
 
 # Creating an 'Aichi map': Biome 4 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 4 Aichi map}
@@ -2919,6 +2942,7 @@ aichibiome4_ee <- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome4aichi_map
 plot(aichibiome4_ee)
 ```
 
+
 # Creating a biodcrisis map: Biome 1
 ```{r biome 1 biodcrisis' map}
 # normalize covariates
@@ -2943,6 +2967,7 @@ writeRaster(biodcrisisbiome1_map_ras_ee,filename = paste0(dir,"/output/geo-proc/
 biodcrisisbiome1_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome1biodcrisis_map_FinalEE.tif"))
 plot(biodcrisisbiome1_ee)
 ```
+
 
 # Creating a biodcrisis map: Biome 7
 ```{r biome 7 biodcrisis' map}
@@ -2969,6 +2994,7 @@ biodcrisisbiome7_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome
 plot(biodcrisisbiome7_ee)
 ```
 
+
 # Creating a biodcrisis map: Biome 12
 ```{r biome 12 biodcrisis' map}
 # normalize covariates
@@ -2994,6 +3020,7 @@ biodcrisisbiome12_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biom
 plot(biodcrisisbiome12_ee)
 ```
 
+
 # Creating a biodcrisis map: Biome 4
 ```{r biome 4 biodcrisis' map}
 # normalize covariates
@@ -3018,6 +3045,7 @@ writeRaster(biodcrisisbiome4_map_ras_ee,filename = paste0(dir,"/output/geo-proc/
 biodcrisisbiome4_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome4biodcrisis_map_FinalEE.tif"))
 plot(biodcrisisbiome4_ee)
 ```
+
 
 # Creating a biodcrisis + camera allocation bivariate map: Biome 1 # Doesn't work in Rstudio
 ```{r biome 1 bivariate plots + with scatter}
@@ -3140,6 +3168,7 @@ p3
 ggsave(filename = paste0(dir,"/plots/Fig5f_matrix_scatter.png"), plot = p3, width = 7, height = 5, dpi = 300)
 ```
 
+
 # Creating a bivariate map: Biome 1
 ```{r biome 1 bivariate plots + with scatter}
 # load in the Biome1 aichi map
@@ -3255,6 +3284,7 @@ p3
 ggsave(filename = paste0(dir,"/plots/Fig5f_matrix_scatter.png"), plot = p3, width = 7, height = 5, dpi = 300)
 ```
 
+
 # Creating a bivariate map: Biome 7
 ```{r biome 7 bivariate plots + with scatter}
 # load in the Biome7 aichi map
@@ -3369,6 +3399,7 @@ p4
 ggsave(filename = paste0(dir,"/plots/Fig5i_matrix_scatter.png"), plot = p4, width = 7, height = 5, dpi = 300)
 ```
 
+
 # Creating a bivariate map: Biome 12
 ```{r biome 12 bivariate plots + with scatter}
 # load in the Biome12 aichi map
@@ -3482,6 +3513,7 @@ p5
 # save
 ggsave(filename = paste0(dir,"/plots/Fig5l_matrix_scatter.png"), plot = p5, width = 7, height = 5, dpi = 300)
 ```
+
 
 # Creating a bivariate map: Biome 4
 ```{r biome 4 bivariate plots + with scatter}
@@ -3603,6 +3635,7 @@ p6
 ggsave(filename = paste0(dir,"/plots/Fig5o_matrix_scatter.png"), plot = p6, width = 7, height = 5, dpi = 300)
 ```
 
+
 # Creating disparity figures for Biomes#OBSELETE
 ```{r disparity random and locations (also for figure 4)}
 
@@ -3722,6 +3755,7 @@ biome4_aichi_used_unused
 # save
 ggsave(filename = paste0(dir,"/plots/Fig5n_biodcrisis_matrix_scatter.png"), plot = biome4_aichi_used_unused, width = 7, height = 5, dpi = 300)
 ```
+
 
 # Creating disparity figures for Biomes
 ```{r disparity random and locations (also for figure 4)}
@@ -3843,6 +3877,7 @@ biome4_aichi_used_unused
 ggsave(filename = paste0(dir,"/plots/Fig5n_biodcrisis_matrix_scatter.png"), plot = biome4_aichi_used_unused, width = 7, height = 5, dpi = 300)
 ```
 
+
 # Percent of locations in the different Aichi quintiles for all biomes
 ```{r percent of locs and aichi targets (also for figure 4)}
 # biomes and aichi
@@ -3882,6 +3917,7 @@ biomes_aichi_quintiles
 ggsave(filename = paste0(dir,"/plots/locs_biomes_Aichi_disparity.png"), plot = biomes_aichi_quintiles, width = 9, height = 5, dpi = 300)
 ```
 
+
 # Percent of locations in the different Aichi quintiles for all biomes
 ```{r percent of locs and aichi targets (also for figure 4)}
 # biomes and aichi
@@ -3920,6 +3956,7 @@ science_theme_distribution_diparity
 biomes_biodcrisis_quintiles
 ggsave(filename = paste0(dir,"/plots/locs_biomes_biodcrisis_disparity.png"), plot = biomes_biodcrisis_quintiles, width = 9, height = 5, dpi = 300)
 ```
+
 
 # Figure
 ```{r Number of studies, echo=TRUE}
