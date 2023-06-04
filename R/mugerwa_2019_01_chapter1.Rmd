@@ -198,23 +198,31 @@ extent <- extent(-180, 180, -90, 90)
 # Raincloud plots
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
+# fastRandomPoint function
+fastRandomPoints <- function(r, n, prob = FALSE) {
+  if(raster::nlayers(r) > 1) r <- r[[1]]
+  v <- as.vector(r)
+  v.notNA <- which(!is.na(v))
+  v.vals <- v[v.notNA]
+  if(prob == TRUE & n <= length(v.notNA)) {
+    x <- sample(v.notNA, n, prob = v.vals)
+  } else {
+    x <- sample(v.notNA, n)
+  }
+  pts <- raster::xyFromCell(r, x)
+  return(pts)
+}
+
 # Themes for figures
-science_theme = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
-                      axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.85,0.7),
-                      text = element_text(size = 14))
+science_theme = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.85,0.7),text = element_text(size = 14))
 
-science_theme_facets = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
-                             axis.line = element_line(size = 0.7, color = "black"), legend.position =
-                               c(0.80,0.40), text = element_text(size = 24))
+science_theme_facets = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line = element_line(size = 0.7, color = "black"), legend.position = c(0.80,0.40), text = element_text(size = 24))
 
-science_theme_distribution = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line =
-                                     element_line(size = 0.7, color = "black"), text = element_text(size =22))
+science_theme_distribution = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),axis.line = element_line(size = 0.7, color = "black"), text = element_text(size =22))
 
-science_theme_distribution_diparity = theme(panel.grid.major = element_line(size = 0.5, color ="grey"),
-                                            axis.line = element_line(size = 0.7, color = "black"),
-                                            legend.position="top",text = element_text(size = 22))
+science_theme_distribution_diparity = theme(panel.grid.major = element_line(size = 0.5, color ="grey"),axis.line = element_line(size = 0.7, color = "black"), legend.position="top",text = element_text(size = 22))
 
-science_theme_maps = theme(panel.grid.major = element_line(#size = 0.5, color = "grey"), 
+science_theme_maps = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
   axis.line = element_line(size = 0.7, color = "black"), 
   #legend.position = c(0.15,0.3), 
   #legend.position = "bottom",
@@ -223,48 +231,41 @@ science_theme_maps = theme(panel.grid.major = element_line(#size = 0.5, color = 
   text = element_text(size = 20),
   #legend.justification = c(-140, -10),
   plot.margin = unit(x = c(0.5,0.2,0,0.5), units = "cm"),
-  panel.border = element_rect(color = "grey20")
-)
+  panel.border = element_rect(color = "grey20"))
 
-science_theme_fig1 = theme(panel.grid.major = element_line(#size = 0.5, color = "grey"),
-                          # axis.line = element_line(size = 0.7, color = "black"), 
-                           legend.position = c(0.7,0.8), 
-                           text = element_text(size = 20),
-                          plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
-                          # panel.border = element_rect(color = "grey90")
-                          )
+science_theme_fig1 = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+  # axis.line = element_line(size = 0.7, color = "black"),
+  legend.position = c(0.7,0.8), text = element_text(size = 20), plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm"),
+panel.border = element_rect(color = "grey90"))
 
-science_theme_fig1b = theme(panel.grid.major = element_line(#size = 0.5, color = "grey"),
-                          # axis.line = element_line(size = 0.7, color = "black"), 
-                           legend.position = c(0.4,0.8), 
-                           text = element_text(size = 20),
-                          plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
-                          # panel.border = element_rect(color = "grey90")
-                          )
+science_theme_fig1b = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+# axis.line = element_line(size = 0.7, color = "black"), 
+legend.position = c(0.4,0.8), 
+text = element_text(size = 20),
+plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm"),
+panel.border = element_rect(color = "grey90"))
 
-science_theme_fig2b = theme(panel.grid.major = element_line(#size = 0.5, color = "grey"),
-  # axis.line = element_line(size = 0.7, color = "black"), 
+science_theme_fig2b = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
+  #axis.line = element_line(size = 0.7, color = "black"), 
   legend.position = c(0.10,0.3), 
   text = element_text(size = 18),
-  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
-  # panel.border = element_rect(color = "grey90")
-)
+  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm"),
+  panel.border = element_rect(color = "grey90"))
 
-science_theme_fig2c = theme(panel.grid.major = element_line(#size = 0.5, color = "grey"),
+science_theme_fig2c = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
   # axis.line = element_line(size = 0.7, color = "black"), 
   #legend.position = c(0.10,0.3), 
   text = element_text(size = 20),
-  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
-  # panel.border = element_rect(color = "grey90")
-)
+  plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm"),
+  panel.border = element_rect(color = "grey90"))
 
 science_theme_facets = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
-                             axis.line = element_line(size = 0.7, color = "black"), legend.position =
-                               c(0.80,0.40), text = element_text(size = 24))
+axis.line = element_line(size = 0.7, color = "black"), 
+legend.position = c(0.80,0.40), text = element_text(size = 24))
 
 science_theme_distribution = theme(panel.grid.major = element_line(size = 0.5, color = "grey"),
-                                   axis.line = element_line(size = 0.7, color = "black"), text =
-                                     element_text(size = 22))
+axis.line = element_line(size = 0.7, color = "black"), 
+text = element_text(size = 22))
 
 # More figure themes
 plot.margin = unit(x = c(0.1,0.2,0,0.5), units = "cm")
@@ -569,7 +570,7 @@ tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
 wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
 ```
 
-# Raw data processing
+# Raw data processing#omit
 ```{r generating rasters from vector datasets}
 
 # loading vector polygons
@@ -633,7 +634,7 @@ plot(hum_impact_spp.r)
 # writeRaster(hum_impact_spp.r, paste0(dir, "/data-raw/geo-raw/raster/no_hum_impact_species.r.tiff"))
 ```
 
-# Raw data processing
+# Raw data processing#omit
 ```{r masking to global landmass}
 # making predictors binary (1/0)
 # ifl.binary <- !is.na(ifl)
@@ -652,7 +653,7 @@ plot(hum_impact_spp.r)
 # writeRaster(forloss,paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
 ```
 
-# Raw data processing
+# Raw data processing#omit
 ```{r masked data and creating TRI}
 # elevation_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/elevation_mask.tif"))
 # forloss_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/forloss_mask.tif"))
@@ -668,7 +669,7 @@ plot(hum_impact_spp.r)
 # tri_mask<- raster(paste0(dir,"/output/geo-proc/rasters/mask/tri_mask.tif"))
 ```
 
-# Raw data processing
+# Raw data processing#omit
 ```{r reprojecting rasters}
 # access
 projectRaster(access_raw, humpop_raw,0.008333, projection, method="bilinear", alignOnly=FALSE, over=FALSE, paste0(dir,"/output/geo-proc/rasters/global_accessibility.tif")) 
@@ -734,7 +735,7 @@ wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_wdpa.tif"
 tri <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_tri.tif"))
 ```
 
-# Data
+# Data#OMIT
 ```{r preparing covariates for biome1: tropical moist forests}
 
 # selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
@@ -820,7 +821,7 @@ biome1_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_
 biome1_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_tri.tif"))
 ```
 
-# Data
+# Data#OMIT
 ```{r preparing covariates for biome7: tropical grasslands}
 # selecting out Tropical & Subtropical Moist Broadleaf Forests, and plotting it
 # biome7 <- biomes[biomes$BIOME_NUM == 7,];head(biome7)
@@ -905,7 +906,7 @@ biome7_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_
 biome7_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_tri.tif"))
 ```
 
-# Data
+# Data#OMIT
 ```{r preparing covariates for biome12: Mediterranean forests}
 # selecting out Mediterranean Forests, Woodlands & Scrub biome
 # biome12 <- biomes[biomes$BIOME_NUM == 12,];head(biome12)
@@ -989,7 +990,7 @@ biome12_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome
 biome12_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_tri.tif"))
 ```
 
-# Data
+# Data# OMIT
 ```{r preparing covariates for biome4: Temperate forests}
 # selecting out Temperate mixed forests, and plotting it
 # biome4 <- biomes[biomes$BIOME_NUM == 4,];head(biome4)
@@ -1084,7 +1085,6 @@ data_distribution <- read.csv(paste0(dir,"/output/data-tables/data_distribution.
 
 # for MaxEnt models
 global_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_global.csv"),sep=',',header=TRUE)[,-1]
-
 biome1_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome1.csv"),sep=',',header=TRUE)[,-1]
 biome7_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome7.csv"),sep=',',header=TRUE)[,-1]
 biome12_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome12.csv"),sep=',',header=TRUE)[,-1]
@@ -1121,7 +1121,7 @@ avail_locs <-  data_distribution;str(avail_locs);names(avail_locs)
 # Plot available and occurrence points for continuous covariates with Raincloud plot with boxplots
 # continuous covariates
 # species richness
-sp_rich <- ggplot(avail_locs,aes(x=data,y= sp_rich, fill = data, colour = data))+
+sp_rich_graph <- ggplot(avail_locs,aes(x=data,y= sp_rich, fill = data, colour = data))+
 theme_update(text = element_text(size=12))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1132,10 +1132,11 @@ coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution; sp_rich
+science_theme_distribution;
+sp_rich_graph
 
 # number of species impacted (cumulative human impact)
-num_sp_impacted <- ggplot(avail_locs ,aes(x=data,y= num_sp_imp, fill = data, colour = data))+
+num_sp_impacted_graph <- ggplot(avail_locs ,aes(x=data,y= num_sp_imp, fill = data, colour = data))+
 theme_update(text = element_text(size=12))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1146,12 +1147,12 @@ coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution
-num_sp_impacted
+science_theme_distribution;
+num_sp_impacted_graph
 
 # accessibility
-avail_locs$access_hrs <- 1/60*(avail_locs$access)
-access <- ggplot(avail_locs,aes(x=data,y= access_hrs, fill = data, colour = data))+
+avail_locs$access_hrs <- 1/60*(avail_locs$access)# convert to hours
+access_graph <- ggplot(avail_locs,aes(x=data,y= access_hrs, fill = data, colour = data))+
 theme_update(text = element_text(size=20))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1163,12 +1164,12 @@ xlab("Data")+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution
-access
+science_theme_distribution;
+access_graph
 
 # forest loss
 avail_locs$forlossSQ<- sqrt(avail_locs$forloss)
-forloss <- ggplot(avail_locs,aes(x=data,y= forlossSQ, fill = data, colour = data))+
+forloss_graph <- ggplot(avail_locs,aes(x=data,y= forlossSQ, fill = data, colour = data))+
 theme_update(text = element_text(size=12))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1179,11 +1180,11 @@ coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution
-forloss
+science_theme_distribution;
+forloss_graph
   
 # TRI
-tri <- ggplot(avail_locs,aes(x=data,y= TRI, fill = data, colour = data))+
+tri_graph <- ggplot(avail_locs,aes(x=data,y= TRI, fill = data, colour = data))+
 theme_update(text = element_text(size=12))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1194,10 +1195,11 @@ coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution;access; tri
+science_theme_distribution;
+tri_graph
 
 # Elevation
-elevation <- ggplot(avail_locs,aes(x=data,y= elevation, fill = data, colour = data))+
+elevation_graph <- ggplot(avail_locs,aes(x=data,y= elevation, fill = data, colour = data))+
 theme_update(text = element_text(size=12))+
 geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
@@ -1208,7 +1210,8 @@ coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution;elevation
+science_theme_distribution;
+elevation_graph
 
 # save
 continuous <- ggarrange(sp_rich,num_sp_impacted,access,forloss,tri,elevation, ncol=2, nrow=3);continuous
@@ -1241,7 +1244,7 @@ locations_High ,locations_Upper_middle ,locations_Lower_middle ,locations_Low));
 dataframe <- as.data.frame.matrix(percent_income)
 
 # the plot
-income <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Income)) +
+income_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Income)) +
 geom_bar(stat="identity",color="Black", alpha=0.5)+
 #labs(fill="Income")+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
@@ -1254,7 +1257,8 @@ scale_fill_manual(values = c("grey90","grey70","grey50","grey30"), name= "Countr
 #scale_fill_brewer(palette = "Dark2")+
 coord_flip()+
 theme_bw()+
-science_theme_distribution;income
+science_theme_distribution;
+income_graph
 
 # IFL
 ifl_tbl <- avail_locs %>% group_by(IFL) %>% tally()
@@ -1275,7 +1279,7 @@ percent_ifl <- data.frame(IFL=c("Yes","No"),
 dataframe <- as.data.frame.matrix(percent_ifl)
 
 # the plot
-ifl <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= IFL)) +
+ifl_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= IFL)) +
 geom_bar(stat="identity",color="Black",alpha=0.5)+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
 xlab("")+ylab("Percentage of locations")+
@@ -1288,7 +1292,8 @@ coord_flip()+
 scale_fill_manual(values = c("grey75","grey25"), name= "IFL", labels=c("No","Yes"),guide = guide_legend(reverse = TRUE))+
 #scale_fill_manual(values = c("grey75","grey25"))+
 theme_bw()+
-science_theme_distribution; ifl
+science_theme_distribution;
+ifl_graph
 
 # WDPA
 wdpa_tbl <- avail_locs %>% group_by(protected) %>% tally()
@@ -1309,7 +1314,7 @@ percent_wdpa <- data.frame(Protected =c("Yes","No"),
 dataframe <- as.data.frame.matrix(percent_wdpa)
 
 # the plot
-wdpa <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Protected)) +
+wdpa_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Protected)) +
 geom_bar(stat="identity",color="Black",alpha=0.5)+
 #labs(fill="IUCN protected area")+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
@@ -1323,7 +1328,8 @@ coord_flip()+
 # scale_colour_brewer(palette = "Dark2")+
 # scale_fill_brewer(palette = "Dark2")+
 theme_bw()+
-science_theme_distribution;wdpa
+science_theme_distribution;
+wdpa_graph
 
 # Biomes
 biomes_tbl <- avail_locs %>% group_by(biomes) %>% tally()%>% arrange(desc(biomes))
@@ -1436,7 +1442,7 @@ dataframe <- as.data.frame.matrix(percent_biomes)
 
 # the plot
 dataframe$Biomes <- factor(dataframe$Biomes, levels = c("Biome 1","Biome 2","Biome 3","Biome 4","Biome 5","Biome 6","Biome 7","Biome 8", "Biome 9","Biome 10","Biome 11","Biome 12","Biome 13","Biome 14"))
-biomes <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Biomes)) +
+biomes_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Biomes)) +
 geom_bar(stat="identity",color="Black", alpha=0.8)+
 labs(fill="Biomes")+
 xlab("Data")+ylab("Percentage of locations")+
@@ -1444,7 +1450,8 @@ theme(panel.grid.major.x=element_blank())+
 #scale_color_viridis(discrete = TRUE,option = "E")+
 scale_fill_viridis(discrete = TRUE,option = "E")+
 coord_flip()+
-science_theme_distribution;biomes
+science_theme_distribution;
+biomes_graph
 
 # save
 categorical <- biomes + wdpa + income + ifl
@@ -1460,28 +1467,13 @@ categorical <- biomes + wdpa + income + ifl
 predictorsGL <- raster::stack(access,cum_hum_impact,for_loss,income,biomes,sp_rich,wdpa,ifl,elevation,tri)
 
 # Biomes
-predictorsBiome1 <- raster::stack(biome1_access,biome1_income,biome1_elevation,biome1_forloss,biome1_cum_hum_impact,biome1_ifl,biome1_threat_species,biome1_sp_rich,biome1_wdpa,biome1_tri)
+predictorsBiome1 <- raster::stack(biome1_access,biome1_income,biome1_elevation,biome1_forloss,biome1_cum_hum_impact,biome1_ifl,biome1_sp_rich,biome1_wdpa,biome1_tri)
 
-predictorsBiome7 <- raster::stack(biome7_access,biome7_income,biome7_elevation,biome7_forloss,biome7_cum_hum_impact,biome7_ifl,biome7_threat_species,biome7_sp_rich,biome7_wdpa,biome7_tri)
+predictorsBiome7 <- raster::stack(biome7_access,biome7_income,biome7_elevation,biome7_forloss,biome7_cum_hum_impact,biome7_ifl,biome7_sp_rich,biome7_wdpa,biome7_tri)
 
-predictorsBiome12 <- raster::stack(biome12_access,biome12_income,biome12_elevation,biome12_forloss,biome12_cum_hum_impact,biome12_ifl,biome12_threat_species,biome12_sp_rich,biome12_wdpa,biome12_tri)
+predictorsBiome12 <- raster::stack(biome12_access,biome12_income,biome12_elevation,biome12_forloss,biome12_cum_hum_impact,biome12_ifl,biome12_sp_rich,biome12_wdpa,biome12_tri)
 
-predictorsBiome4 <- raster::stack(biome4_access,biome4_income,biome4_elevation,biome4_forloss,biome4_cum_hum_impact,biome4_ifl,biome4_threat_species,biome4_sp_rich,biome4_wdpa,biome4_tri)
-
-# Run the fastRandomPoint function
-fastRandomPoints <- function(r, n, prob = FALSE) {
-  if(raster::nlayers(r) > 1) r <- r[[1]]
-  v <- as.vector(r)
-  v.notNA <- which(!is.na(v))
-  v.vals <- v[v.notNA]
-  if(prob == TRUE & n <= length(v.notNA)) {
-    x <- sample(v.notNA, n, prob = v.vals)
-  } else {
-    x <- sample(v.notNA, n)
-  }
-  pts <- raster::xyFromCell(r, x)
-  return(pts)
-}
+predictorsBiome4 <- raster::stack(biome4_access,biome4_income,biome4_elevation,biome4_forloss,biome4_cum_hum_impact,biome4_ifl,biome4_sp_rich,biome4_wdpa,biome4_tri)
 
 # Generate background points using the fastRandomPoint function
 # Global
@@ -1500,30 +1492,29 @@ bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
 # run the evaluation: This run uses the "randomkfold" method of cross-validation and 10 cross-validation folds. 
 
 # Global
-enmevalGL <- ENMevaluate(occ_raw_2000_20sp_ALL, predictorsGL, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,5,7,8), algorithm='maxent.jar')
+enmevalGL <- ENMevaluate(global_locs, predictorsGL, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,5,7,8), algorithm='maxent.jar')
 enmevalGL@results
 write.csv(enmevalGL@results, paste0(dir,"/results/After_2000/Final/Tables/enmevaGL_resultsFinalFinalFinal.csv"))
 
 # Biomes
-enmevalBiome1 <- ENMevaluate(occ_raw_2000_20sp_biome1, predictorsBiome1, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome1 <- ENMevaluate(biome1_locs, predictorsBiome1, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,6,7), algorithm='maxent.jar')
 enmevalBiome1@results
 write.csv(enmevalBiome1@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome1_resultsFinalFinalFinal.csv"))
 
-enmevalBiome7 <- ENMevaluate(occ_raw_2000_20sp_biome7, predictorsBiome7, method="randomkfold", kfolds = 5, n.bg=bgBiome7, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome7 <- ENMevaluate(biome7_locs, predictorsBiome7, method="randomkfold", kfolds = 5, n.bg=bgBiome7, categoricals=c(4,6,7), algorithm='maxent.jar')
 enmevalBiome7@results
 write.csv(enmevalBiome7@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome7_resultsFinalFinalFinal.csv"))
 
-enmevalBiome12 <- ENMevaluate(occ_raw_2000_20sp_biome12, predictorsBiome12, method="randomkfold", kfolds = 5, n.bg=bgBiome12, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome12 <- ENMevaluate(biome12_locs, predictorsBiome12, method="randomkfold", kfolds = 5, n.bg=bgBiome12, categoricals=c(4,6,7), algorithm='maxent.jar')
 enmevalBiome12@results
 write.csv(enmevalBiome12@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome12_results.csv"))
 
-enmevalBiome4 <- ENMevaluate(occ_raw_2000_20sp_biome4, predictorsBiome4, method="randomkfold", kfolds = 5, n.bg=bgBiome4, categoricals=c(4,6,7), algorithm='maxent.jar')
+enmevalBiome4 <- ENMevaluate(biome4_locs, predictorsBiome4, method="randomkfold", kfolds = 5, n.bg=bgBiome4, categoricals=c(4,6,7), algorithm='maxent.jar')
 enmevalBiome4@results
 write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome4_results.csv"))
 
 # IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
 ```
-
 
 # Dividing occurrence data into training and testing sets for MaxEnt modelling
 ```{r training and testing sets}
@@ -3957,7 +3948,7 @@ dataframe$country_inc <- factor(dataframe$country_inc,levels = c("High","Upper-M
 Fig2b <- ggplot(data=dataframe, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
 geom_bar(stat="identity",color="white", alpha=0.8) +
 labs(fill='Country income group')+
-scale_fill_manual(values=c("#CD5C5C","#EFC8BD","#8874a3","#283655",alpha=0.1),
+scale_fill_manual(values=c("#CD5C5C","#EFC8BD","#8874a3","#283655"),
 name= "Country income group",labels = c("High", "Upper-Middle", "Lower-Middle","Low"))+
 geom_line(data= dataframe,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
 labs(x="Year", y="Number of locations")+
