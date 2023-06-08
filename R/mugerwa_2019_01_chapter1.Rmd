@@ -39,7 +39,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Chunk options
+# Chunk options (checked)
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
                       fig.with=9, fig.height=6,dpi=300,
@@ -57,9 +57,7 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 * ** Data:**
 *Research locations' Lat/Long data + global environmental (predictor) remote sensed datasets:1) country income, 2) IUCN protected area, 3) forest loss, 4) number of species impacted by human activity, 5) terrestrial mammal diversity, 6) remoteness, 7) Intact Forest Landscape (IFL), 8) biome, 9) elevation, and 10) Terrain Ruggedness Index (TRI).*
 
-
-
-# Setup
+# Setup: setting project in D6 style (checked)
 ```{r setting up project in D6 style}
 # create project 
 # d6::new_project(
@@ -67,13 +65,13 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 # path = "D:/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/")
 ```
 
-# Setup
+# Setup: cleaning memory (checked)
 ```{r cleaning memory}
 rm(list=ls())
 gc()
 ```
 
-# Setup
+# Setup: installing packages (Checked)
 ```{r package installation}
 # install.packages("maps")
 # install.packages("classInt")
@@ -125,7 +123,7 @@ gc()
 # install.packages("patchwork")
 ```
 
-# Setup
+# Setup: loading packages (checked)
 ```{r package loading}
 # find folder to put the maxent.jar
 # system.file("java", package="dismo")
@@ -188,7 +186,7 @@ library(reshape2)
 library(car)
 ```
 
-# Setup
+# Setup: projections and functions (checked)
 ```{r required functions}
 # Projections and extents
 crs_equal_earth <- 8857 # Equal Earth 
@@ -290,8 +288,6 @@ normalizeRaster <- function(x){
 }
 
 # Bivariate maps
-# source: https://gist.github.com/scbrown86/2779137a9378df7b60afd23e0c45c188
-
 # The function that produces the colour matrix
 colmat <- function(nquantiles = 3, upperleft = "#0096EB", upperright = "#820050", 
                    bottomleft = "#BEBEBE", bottomright = "#FFE60F",
@@ -391,9 +387,6 @@ bivariate.map <- function(rasterx, rastery, colormatrix = col.matrix,
                               na.rm = TRUE,
                               probs = c(seq(0, 1, 1 / nquantiles))
   ))
-  ## Add (very) small amount of noise to all but the first break
-  ## https://stackoverflow.com/a/19846365/1710632
-  #JN: Didn't check why this would be necessary
   brks[-1] <- brks[-1] + seq_along(brks[-1]) * .Machine$double.eps
   
   # assign quantile group to each raster value (group 1 is omitted, so for 3 quantiles the values are 2,3,4)
@@ -433,7 +426,6 @@ bivariate.map <- function(rasterx, rastery, colormatrix = col.matrix,
   
   # loop over all cells of the original color matrix
   # if the color is NA, replace cell with 1, otherwise the the first match of the color i in cn
-  # I don't understand why. In my tests with 5 breaks it's always no
   for (i in 1:length(col.matrix2)) {
     ifelse(is.na(col.matrix2[i]), 
            col.matrix2[i] <- 1,
@@ -491,7 +483,6 @@ upperright =  "grey10"
 bottomright = "#04eaff"
 
 my.data <- seq(0, 1, .01)
-# Default uses terciles (Lucchesi and Wikle [2017] doi: 10.1002/sta4.150)
 my.class <- classInt::classIntervals(my.data,
                                      n = nquantiles,
                                      style = "quantile" )
@@ -534,19 +525,14 @@ assign(
 )
 ```
 
-# Setup
+# Setup: setting working directory (checked)
 ```{r working directory}
 # set working directory
 dir = "~/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
 ```
 
-# Data
-```{r raw data}
-# tables
-figure2a <-read.csv(paste0(dir,"/output/data-tables/noStudies_PerYear_noCountries_PerYear.csv"))
-figure2b <-read.csv(paste0(dir,"/output/data-tables/locs_peryr_countryInc_2000.csv"))
-figure2c <- read.csv(paste0(dir,"/output/data-tables/research_locations_ALLYears.csv"))
-
+# Data: shapefiles,.csv tables (checked)
+```{r}
 # shape files
 world <- st_read(paste0(dir,"/output/geo-proc/shp/ne_10m_admin_0_countries.shp"))
 ocean <- st_read(paste0(dir,"/output/geo-proc/shp/ne_10m_ocean.shp"))
@@ -556,181 +542,73 @@ biomes <- st_read(paste0(dir,"/data-raw/geo-raw/shp/Ecoregions2017.shp"))
 ifl <- st_read(paste0(dir,"/data-raw/geo-raw/shp/ifl_2000_2013_2016.shp"))
 hum_impact_spp <- st_read(paste0(dir,"/data-raw/geo-raw/shp/Spatial_data_mammals.shp"))
 
-# raw rasters
-landmass <- raster(paste0(dir,"/data-raw/geo-raw/raster/landmass.tif"))
-humpop_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/humpop_density.tif"))
-access_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/accessibility.tif"))
-biomes_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/biomes.tif"))
-hum_impact_spp_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/cum_hum_impact.tif"))
-elevation_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/elevation.tif"))
-forloss_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/forloss.tif"))
-ifl_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/ifl.tif"))
-income_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/income.tif"))
-spp_rich_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/Richness.tif"))
-tri_raw <-raster(paste0(dir,"/data-raw/geo-raw/raster/tri.tif"))
-wdpa_raw <- raster(paste0(dir,"/data-raw/geo-raw/raster/wdpa.tif"))
-```
+# tables
+figure2a <-read.csv(paste0(dir,"/output/data-tables/noStudies_PerYear_noCountries_PerYear.csv"))
+figure2b <-read.csv(paste0(dir,"/output/data-tables/locs_peryr_countryInc_2000.csv"))
+figure2c <- read.csv(paste0(dir,"/output/data-tables/research_locations_ALLYears.csv"))
+corr_matrix <- read.csv(paste0(dir,"/output/data-tables/corrmatrix_avail_occ_covs.csv"))# correlation matrix
+data_distribution_continuous <- read.csv(paste0(dir,"/output/data-tables/data_distribution_continuous.csv"))#data distribution
+data_distribution_Income <- read.csv(paste0(dir,"/output/data-tables/data_distribution_Income.csv"))#data distribution
+data_distribution_IFL <- read.csv(paste0(dir,"/output/data-tables/data_distribution_IFL.csv"))#data distribution
+data_distribution_WDPA <- read.csv(paste0(dir,"/output/data-tables/data_distribution_WDPA.csv"))#data distribution
+data_distribution_Biomes <- read.csv(paste0(dir,"/output/data-tables/data_distribution_Biomes.csv"))#data distribution
 
-# Data
-```{r processed rasters:Global}
-# access
+# rasters
+# global
 access <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_accessibility.tif"))
-
-# biomes
 biomes <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_biomes.tif"))
-
-# income
 income <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_country_income_group.tif"))
-
-# elevation
 elevation <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_elevation.tif"))
-
-# forloss
 for_loss <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_forest_loss.tif"))
-
-# cum_hum_impact
 cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_hum_impact_spp.tif"))
-
-# ifl
 ifl <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_ifl.tif"))
-
-# sp_rich
 sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_species_rich.tif"))
-
-# wdpa
 wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_iucn_wdpa.tif"))
-
-# tri
 tri <- raster(paste0(dir,"/output/geo-proc/rasters/global/global_tri.tif"))
-```
 
-# Data
-```{r processed rasters for biome 1: tropical moist forests}
-# access
+# biome 1 (Tropical moist forests)
 biome1_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_accessibility.tif"))
-
-# income
 biome1_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_country_income_group.tif"))
-
-# elevation
 biome1_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_elevation.tif"))
-
-# forloss
 biome1_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_forest_loss.tif"))
-
-# cum_hum_impact
 biome1_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_hum_impact_spp.tif"))
-
-# ifl
 biome1_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_ifl.tif"))
-
-# sp_rich
 biome1_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_iucn_species_rich.tif"))
-
-# wdpa
 biome1_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_iucn_wdpa.tif"))
-
-# tri
 biome1_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome1/biome1_tri.tif"))
-```
 
-# Data
-```{r processed rasters for biome7: tropical grasslands}
-# access
+# biome 7 (Temperate forests)
 biome7_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_accessibility.tif"))
-
-# income
 biome7_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_country_income_group.tif"))
-
-# elevation
 biome7_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_elevation.tif"))
-
-# forloss
 biome7_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_forest_loss.tif"))
-
-# cum_hum_impact
 biome7_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_hum_impact_spp.tif"))
-
-# ifl
 biome7_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_ifl.tif"))
-
-# sp_rich
 biome7_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_iucn_species_rich.tif"))
-
-# wdpa
 biome7_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_iucn_wdpa.tif"))
-
-# tri
 biome7_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome7/biome7_tri.tif"))
-```
 
-# Data
-```{r processed rasters for biome12: Mediterranean forests}
-# access
+# biome 12 (Tropical grasslands)
 biome12_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_accessibility.tif"))
-
-# income
 biome12_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_country_income_group.tif"))
-
-# elevation
 biome12_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_elevation.tif"))
-
-# forloss
 biome12_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_forest_loss.tif"))
-
-# cum_hum_impact
 biome12_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_hum_impact_spp.tif"))
-
-# ifl
 biome12_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_ifl.tif"))
-
-# sp_rich
 biome12_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_iucn_species_rich.tif"))
-
-# wdpa
 biome12_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_iucn_wdpa.tif"))
-
-# tri
 biome12_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome12/biome12_tri.tif"))
-```
 
-# Data
-```{r processed rasters for biome4: Temperate forests}
-# access
+# biome 4 (Mediterranean biome)
 biome4_access <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_accessibility.tif"))
-
-# income
 biome4_income <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_country_income_group.tif"))
-
-# elevation
 biome4_elevation <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_elevation.tif"))
-
-# forloss
 biome4_forloss <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_forest_loss.tif"))
-
-# cum_hum_impact
 biome4_cum_hum_impact <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_hum_impact_spp.tif"))
-
-# ifl
 biome4_ifl <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_ifl.tif"))
-
-# sp_rich
 biome4_sp_rich <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_iucn_species_rich.tif"))
-
-# wdpa
 biome4_wdpa <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_iucn_wdpa.tif"))
-
-# tri
 biome4_tri <- raster(paste0(dir,"/output/geo-proc/rasters/biomes/biome4/biome4_tri.tif"))
-```
-
-# Data
-```{r Final data tables}
-# For correlation matrix
-corr_matrix <- read.csv(paste0(dir,"/output/data-tables/corrmatrix_avail_occ_covs.csv"))
-
-# for data distribution
-data_distribution <- read.csv(paste0(dir,"/output/data-tables/data_distribution.csv"))
 
 # for MaxEnt models
 global_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_global.csv"),sep=',',header=TRUE)[,-1]
@@ -740,8 +618,8 @@ biome12_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biom
 biome4_locs <- read.csv(paste0(dir,"/output/data-tables/research_locations_biome4.csv"),sep=',',header=TRUE)[,-1]
 ```
 
-# Collinearity test among predictors
-```{r collinearity test among predictors}
+# Figure S1 (correlation matrix: Testing collinearity among predictors) (checked)
+```{r extended data figure 1: Correlation matrix}
 # subset data for only occurrence data
 occ_data <- subset(corr_matrix,data=="Occurrence"); length(occ_data$fid)
 names(occ_data)
@@ -758,14 +636,27 @@ corplot <- ggcorrplot(cor, hc.order = TRUE,lab=TRUE,legend.title = "Correlation"
 labs(fill='Correlation')
 corplot
 
+# plot
+corplot <- ggcorrplot(cor, hc.order = TRUE,lab=TRUE,legend.title = "Correlation")+
+labs(fill='Correlation')+
+labs(x="",y="")+
+#scale_fill_viridis()+
+theme_bw()+
+theme(axis.text.x=element_text(size=20, angle=45, vjust=1, hjust=1, margin=margin(-3,0,0,0)),
+      axis.text.y=element_text(size=20, margin=margin(-3,0,0,0)),
+	text = element_text(size=20),
+	legend.text = element_text(size=12))
+science_theme_fig2c
+corplot
+
 # save plot
-# ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"), plot = corplot, width = 10, height = 7, dpi = 300)
+ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"),plot = corplot, width = 10, height = 7, dpi = 300)
 ```
 
-# Visualising distribution of avialable vs. locations
+# Figure S2 (Visualising distribution of avialable vs. locations) (checked)
 ```{r data distribution between available vs. locations }
 # load in occurrence and available points
-avail_locs <-  data_distribution;str(avail_locs);names(avail_locs)
+avail_locs <-  data_distribution_continuous;str(avail_locs);names(avail_locs)
 
 # Plot available and occurrence points for continuous covariates with Raincloud plot with boxplots
 # continuous covariates
@@ -839,7 +730,7 @@ geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRU
 geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
 geom_boxplot(aes(x = data, y = TRI),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
 ylab("Terrain Ruggedness Index (meters)")+
-xlab("")+
+xlab("Data")+
 coord_flip()+
 guides(fill = FALSE, colour = FALSE) +
 scale_fill_manual(values = c("grey75","grey25"))+
@@ -862,38 +753,15 @@ theme_bw()+
 science_theme_distribution;
 elevation_graph
 
-# save
+# save for continuous predictors
 continuous <- ggarrange(sp_rich,num_sp_impacted,access,forloss,tri,elevation, ncol=2, nrow=3);continuous
+# continuous <- num_sp_impacted + sp_rich + access + forloss + tri + elevation
+#continuous <- (threat_sp|num_sp_impacted)/ (access|forloss)/ (tri|elevation)
 # ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_continuous.png"),
 # plot = continuous, width =14, height = 17, dpi = 300)
 
-# categorical predictors
 # Country income group
-income_tbl <- avail_locs %>% group_by(income) %>% tally()
-income <- table(income=avail_locs$income, data=avail_locs$data)
-
-#calculating percentage of points per each country income group
-available_High= 14065/41936*100;available_High
-available_Upper_middle=17197/41936*100;available_Upper_middle
-available_Lower_middle= 5803/41936*100;available_Lower_middle
-available_Low= 4871/41936*100;available_Low
-
-locations_High = 1332/3394*100;locations_High 
-locations_Upper_middle = 1363/3394*100;locations_Upper_middle
-locations_Lower_middle = 437/3394*100;locations_Lower_middle
-locations_Low = 262/3394*100;locations_Low 
-  
-# building data frame
-percent_income<- data.frame(Income =c("Group 1","Group 2","Group 3","Group 4"), 
-Data =c("Available","Available","Available","Available","Locations","Locations","Locations","Locations"), 
-percent=c(available_High,available_Upper_middle,available_Lower_middle,available_Low,
-locations_High ,locations_Upper_middle ,locations_Lower_middle ,locations_Low));percent_income
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_income)
-
-# the plot
-income_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Income)) +
+income_graph <- ggplot(data=data_distribution_Income, aes(x=Data, y=percent, fill= Income)) +
 geom_bar(stat="identity",color="Black", alpha=0.5)+
 #labs(fill="Income")+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
@@ -910,25 +778,7 @@ science_theme_distribution;
 income_graph
 
 # IFL
-ifl_tbl <- avail_locs %>% group_by(IFL) %>% tally()
-ifl <- table(ifl=avail_locs $IFL, data=avail_locs$data)
-
-# Calculating number of points in IFL vs. non-IFL 
-available_yes= 3646/41937*100;available_yes
-location_yes=251/3395*100;location_yes
-available_no= 38291/41937*100;available_no
-location_no=3144/3395*100;location_no
-  
-# building dataframe
-percent_ifl <- data.frame(IFL=c("Yes","No"),
-                          Data =c("Available","Available","Locations","Locations"),
-                          percent=c(available_yes, available_no, location_yes, location_no));percent_ifl
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_ifl)
-
-# the plot
-ifl_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= IFL)) +
+ifl_graph <- ggplot(data=data_distribution_IFL, aes(x=Data, y=percent, fill= IFL)) +
 geom_bar(stat="identity",color="Black",alpha=0.5)+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
 xlab("")+ylab("Percentage of locations")+
@@ -945,25 +795,7 @@ science_theme_distribution;
 ifl_graph
 
 # WDPA
-wdpa_tbl <- avail_locs %>% group_by(protected) %>% tally()
-wdpa <- table(wdpa = avail_locs$protected, data=avail_locs$data)
-
-# calculating the number of points in protected vs. un protected
-available_yes= 3587/41937*100;available_yes
-available_no= 38350/41937*100;available_no
-location_yes=986/3395*100;location_yes
-location_no=2409/3395*100;location_no
-  
-# building dataframe
-percent_wdpa <- data.frame(Protected =c("Yes","No"),
-                           Data =c("Available","Available","Locations","Locations"),
-                           percent=c(available_yes,available_no,location_yes,location_no));percent_wdpa
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_wdpa)
-
-# the plot
-wdpa_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Protected)) +
+wdpa_graph <- ggplot(data=data_distribution_WDPA, aes(x=Data, y=percent, fill= Protected)) +
 geom_bar(stat="identity",color="Black",alpha=0.5)+
 #labs(fill="IUCN protected area")+
 #geom_text(aes(y=percent, label=percent), vjust=-0.25, color="black", size=5,position = position_dodge(0.5))+
@@ -981,117 +813,10 @@ science_theme_distribution;
 wdpa_graph
 
 # Biomes
-biomes_tbl <- avail_locs %>% group_by(biomes) %>% tally()%>% arrange(desc(biomes))
-biomes <- table(biomes=avail_locs$biomes, data=avail_locs$data);biomes
+# arranging the biomes
+data_distribution_Biomes$Biomes <- factor(data_distribution_Biomes$Biomes, levels = c("Biome 1","Biome 2","Biome 3","Biome 4","Biome 5","Biome 6","Biome 7","Biome 8", "Biome 9","Biome 10","Biome 11","Biome 12","Biome 13","Biome 14"))
 
-# calculating the percentage of points per biome
-available_6= 4363/37681*100;available_6
-available_13= 7538/37681*100;available_13
-available_9 = 334/37681*100;available_9
-available_14 = 93/37681*100;available_14
-available_12 =953/37681*100;available_12
-available_10 =1383/37681*100;available_10
-available_4	=3530/37681*100;available_4
-available_5	=1076/37681*100;available_5
-available_8	=3032/37681*100;available_8
-available_3=184/37681*100;available_3
-available_2=1105/37681*100;available_2
-available_7=6127/37681*100;available_7
-available_1 =5563/37681*100;available_1
-available_11=2400/37681*100;available_11
-
-locations_6= 31/3366*100;locations_6
-locations_13= 218/3366*100;locations_13
-locations_9= 36/3366*100;locations_9
-locations_14= 41/3366*100;locations_14
-locations_12 =228/3366*100;locations_12
-locations_10 =82/3366*100;locations_10
-locations_4	=711/3366*100;locations_4
-locations_5	=183/3366*100;locations_5
-locations_8	=188/3366*100;locations_8
-locations_3 =73/3366*100;locations_3
-locations_2=169/3366*100;locations_2
-locations_7=311/3366*100;locations_7
-locations_1 =1075/3366*100;locations_1 
-locations_11=20/3366*100;locations_11
-
-# Building the dataframe
-percent_biomes <- data.frame(Biomes =c("Biome 1",
-                                       "Biome 2",
-                                       "Biome 3",
-                                       "Biome 4",
-                                       "Biome 5",
-                                       "Biome 6",
-                                       "Biome 7",
-                                       "Biome 8",
-                                       "Biome 4",
-                                       "Biome 10",
-                                       "Biome 11",
-                                       "Biome 12",
-                                       "Biome 13",
-                                       "Biome 14"), 
-                             Data=c("Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations"), 
-                             percent=c(available_1,
- 						   available_2,
-						   available_3,
-						   available_4,
-						   available_5,
-						   available_6,
-						   available_7,
-						   available_8,
-						   available_9,
-						   available_10,
-   						 available_11,
- 						   available_12,
-						   available_13,
-						   available_14,
-						   locations_1,
-						   locations_2,
-						   locations_3,
-						   locations_4,
-					     locations_5,
-						   locations_6,
-						   locations_7,
-               locations_8,
-						   locations_9,
-					     locations_10,
-						   locations_11,
-					     locations_12,
-					     locations_13,
-               locations_14));percent_biomes
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_biomes)
-
-# the plot
-dataframe$Biomes <- factor(dataframe$Biomes, levels = c("Biome 1","Biome 2","Biome 3","Biome 4","Biome 5","Biome 6","Biome 7","Biome 8", "Biome 9","Biome 10","Biome 11","Biome 12","Biome 13","Biome 14"))
-biomes_graph <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Biomes)) +
+biomes_graph <- ggplot(data=data_distribution_Biomes, aes(x=Data, y=percent, fill= Biomes)) +
 geom_bar(stat="identity",color="Black", alpha=0.8)+
 labs(fill="Biomes")+
 xlab("Data")+ylab("Percentage of locations")+
@@ -1102,10 +827,134 @@ coord_flip()+
 science_theme_distribution;
 biomes_graph
 
+# save for categorical predictors
+#categorical <- biomes + wdpa + income + ifl
+#ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_categoricalF.png"),
+#plot = categorical2, width =15, height = 9, dpi = 300)
+```
+
+# Figure 2 (checked)
+```{r Number of studies, echo=TRUE}
+# Fig.2a
+Fig2a <- ggplot() +
+geom_bar(data=  figure2a,aes(x= Year,y= No_studies),stat="identity",
+color="white",fill=fig2_bar_color,position=position_dodge())+
+geom_line(data= figure2a,aes(x= Year,y= No_countries*5),size=1.5,color=fig2_line_color)+
+scale_y_continuous(sec.axis = sec_axis(~./5, name = "Countries with studies")) +
+labs(x="Year", y="Number of studies")+
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=20))+
+science_theme_fig1
+Fig2a
 # save
-categorical <- biomes + wdpa + income + ifl
-# ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_categorical.png"),
-# plot = categorical, width =15, height = 9, dpi = 300)
+ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, height = 5, dpi = 300)
+########################################################################################################
+
+# Fig.2b
+# country income as factor
+dataframe <- figure2b
+dataframe$country_inc <- factor(dataframe$country_inc,levels = c("High","Upper-Middle","Lower-Middle","Low"))
+
+Fig2b <- ggplot(data=dataframe, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
+geom_bar(stat="identity",color="white", alpha=0.8) +
+labs(fill='Country income group')+
+scale_fill_manual(values=c("#CD5C5C","#EFC8BD","#8874a3","#283655"),
+name= "Country income group",labels = c("High", "Upper-Middle", "Lower-Middle","Low"))+
+geom_line(data= dataframe,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
+labs(x="Year", y="Number of locations")+
+scale_y_continuous(sec.axis = sec_axis(~./1, name = "Locations per country income group")) + 
+theme_bw()+
+theme(axis.title.y = element_text(color = fig2_bar_color),
+         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
+         axis.text = element_text(size=20),
+	   legend.text = element_text(size=legend.text.size))+
+science_theme_fig1b
+Fig2b 
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2b.png"), plot = Fig2b, width = 7, height = 5, dpi = 300)
+##############################################################################################################
+
+# Fig.2c
+# make research locations spatial, assign coordinate reference system to spatial points
+coordinates(figure2c) <- ~ lon + lat
+str(figure2c)
+ 
+locs_sp <- SpatialPointsDataFrame(coords = figure2c[, c("lon", "lat")],
+                   data = figure2c,proj4string =   CRS("+proj=longlat +datum=WGS84"))
+locs_sf <- as(locs_sp, "sf")
+
+# Transforming to Equal Earth Projection
+world_ee <- st_transform(world, st_crs(crs_equal_earth))
+locs_sf_ee <- st_transform(locs_sf, st_crs(crs_equal_earth))
+
+# Year as a factor
+locs_sf$Year <- factor(locs_sf$Year, levels = c("After 2000","Before 2000"))
+
+Fig2c <- ggplot() +
+geom_sf(data = world_ee, fill="grey95", colour = ctry_border_color1, size = ctry_border_size) +
+geom_sf(data = locs_sf_ee, aes(colour=Year, fill = Year), alpha = 0.5, size = study_point_size, shape = 16) +
+scale_fill_manual(values=c("grey20", "purple")) + 
+scale_colour_manual(values=c("grey20", "purple"))+
+theme_bw()+
+theme(axis.title = element_blank(),
+         axis.text = element_blank(),
+         panel.border = element_blank(),
+         legend.background = legend.bg,
+         legend.text = element_text(size=legend.text.size)) +
+guides(fill = guide_legend(title.position="top", 
+                              title.hjust = 0.5,
+                              override.aes = list(size = 2, alpha = 0.8)))+
+science_theme_fig2b
+Fig2c
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2c.png"),plot = Fig2c, scale = 1, dpi = 300, height = 4, width = 8)
+##################################################################################################################
+# Fig.2d
+#construct cartogram
+country <- cartogram_cont(world_ee, "No_sites", itermax = 5)
+plot(country[,76])
+
+# Create classes
+country$No_studies_class <- ifelse(country$No_studies == 0, 0, 
+                                    ifelse(country$No_studies <= 10, 1, 
+                                           ifelse(country$No_studies <= 50, 2, 
+                                                  ifelse(country$No_studies <= 100, 3, 
+                                                         ifelse(country$No_studies <= 200, 4, 
+                                                                ifelse(country$No_studies <= 300, 5,
+												                                          ifelse(country$No_studies <= 400, 6,
+													                                          ifelse(country$No_studies <= 500, 7, 
+                                                                       			ifelse(country$No_studies <= 600, 8, NA)))))))))
+country$No_studies_class <- factor(country$No_studies_class, 
+                            levels = seq(0, 8), 
+                            labels = c("0", "1-10", "11-50", "51-100", "101-200", "201-300", "301-400","401-500","501-600"))
+
+Fig2d <- ggplot() +
+geom_sf(data = country,  aes(fill= No_studies_class), color= ctry_border_color2, size = ctry_border_size,) +
+theme_bw()+
+scale_fill_viridis_d(name="Number of studies") +
+guides(fill = guide_legend(title.position="top", 
+                             title.hjust = 0.8,
+                             label.position = "right",
+                             ncol = 1)) +
+theme(axis.title = element_blank(),
+        panel.border = element_blank(),
+        legend.text = element_text(size=legend.text.size),
+        legend.background = legend.bg) +
+science_theme_fig2b +
+coord_sf()
+Fig2d
+# save
+ggsave(filename = paste0(dir,"/plots/Fig2d.png"),plot = Fig2d, width =7, height = 8, dpi = 300)
+#####################################################################################################################
+
+# Fig.2
+Fig2 <- Fig2a + Fig2b + Fig2c + Fig2d + plot_layout(ncol = 2, nrow = 2, 
+                 widths = c(1,1), heights = c(1.2, 1)) +
+                         plot_annotation(tag_levels = 'a', tag_suffix = ')')
+Fig2
+ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
 ```
 
 # Generate background points for use in the maxent models
@@ -3568,484 +3417,7 @@ biomes_biodcrisis_quintiles
 ggsave(filename = paste0(dir,"/plots/locs_biomes_biodcrisis_disparity.png"), plot = biomes_biodcrisis_quintiles, width = 9, height = 5, dpi = 300)
 ```
 
-# Figure
-```{r Number of studies, echo=TRUE}
-# Fig.2a
-Fig2a <- ggplot() +
-geom_bar(data=  figure2a,aes(x= Year,y= No_studies),stat="identity",
-color="white",fill=fig2_bar_color,position=position_dodge())+
-geom_line(data= figure2a,aes(x= Year,y= No_countries*5),size=1.5,color=fig2_line_color)+
-scale_y_continuous(sec.axis = sec_axis(~./5, name = "Countries with studies")) +
-labs(x="Year", y="Number of studies")+
-theme_bw()+
-theme(axis.title.y = element_text(color = fig2_bar_color),
-         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
-         axis.text = element_text(size=20))+
-science_theme_fig1
-Fig2a
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2a.png"), plot = Fig2a, width = 7, height = 5, dpi = 300)
-########################################################################################################
 
-# Fig.2b
-# country income as factor
-dataframe <- figure2b
-dataframe$country_inc <- factor(dataframe$country_inc,levels = c("High","Upper-Middle","Lower-Middle","Low"))
-
-Fig2b <- ggplot(data=dataframe, aes(x=Year, y=locs_country_inc, fill= country_inc)) +
-geom_bar(stat="identity",color="white", alpha=0.8) +
-labs(fill='Country income group')+
-scale_fill_manual(values=c("#CD5C5C","#EFC8BD","#8874a3","#283655"),
-name= "Country income group",labels = c("High", "Upper-Middle", "Lower-Middle","Low"))+
-geom_line(data= dataframe,aes(x= Year,y= locs_per_yr*1.00),size=1.5,color=fig2_line_color, alpha=0.6)+
-labs(x="Year", y="Number of locations")+
-scale_y_continuous(sec.axis = sec_axis(~./1, name = "Locations per country income group")) + 
-theme_bw()+
-theme(axis.title.y = element_text(color = fig2_bar_color),
-         axis.title.y.right = element_text(color = fig2_line_color, angle=90),
-         axis.text = element_text(size=20),
-	   legend.text = element_text(size=legend.text.size))+
-science_theme_fig1b
-Fig2b 
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2b.png"), plot = Fig2b, width = 7, height = 5, dpi = 300)
-##############################################################################################################
-
-# Fig.2c
-# make research locations spatial, assign coordinate reference system to spatial points
-coordinates(figure2c) <- ~ lon + lat
-str(figure2c)
- 
-locs_sp <- SpatialPointsDataFrame(coords = figure2c[, c("lon", "lat")],
-                   data = figure2c,proj4string =   CRS("+proj=longlat +datum=WGS84"))
-locs_sf <- as(locs_sp, "sf")
-
-# Transforming to Equal Earth Projection
-world_ee <- st_transform(world, st_crs(crs_equal_earth))
-locs_sf_ee <- st_transform(locs_sf, st_crs(crs_equal_earth))
-
-# Year as a factor
-locs_sf$Year <- factor(locs_sf$Year, levels = c("After 2000","Before 2000"))
-
-Fig2c <- ggplot() +
-geom_sf(data = world_ee, fill="grey95", colour = ctry_border_color1, size = ctry_border_size) +
-geom_sf(data = locs_sf_ee, aes(colour=Year, fill = Year), alpha = 0.5, size = study_point_size, shape = 16) +
-scale_fill_manual(values=c("grey20", "purple")) + 
-scale_colour_manual(values=c("grey20", "purple"))+
-theme_bw()+
-theme(axis.title = element_blank(),
-         axis.text = element_blank(),
-         panel.border = element_blank(),
-         legend.background = legend.bg,
-         legend.text = element_text(size=legend.text.size)) +
-guides(fill = guide_legend(title.position="top", 
-                              title.hjust = 0.5,
-                              override.aes = list(size = 2, alpha = 0.8)))+
-science_theme_fig2b
-Fig2c
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2c.png"),plot = Fig2c, scale = 1, dpi = 300, height = 4, width = 8)
-##################################################################################################################
-# Fig.2d
-#construct cartogram
-country <- cartogram_cont(world_ee, "No_sites", itermax = 5)
-plot(country[,76])
-
-# Create classes
-country$No_studies_class <- ifelse(country$No_studies == 0, 0, 
-                                    ifelse(country$No_studies <= 10, 1, 
-                                           ifelse(country$No_studies <= 50, 2, 
-                                                  ifelse(country$No_studies <= 100, 3, 
-                                                         ifelse(country$No_studies <= 200, 4, 
-                                                                ifelse(country$No_studies <= 300, 5,
-												                                          ifelse(country$No_studies <= 400, 6,
-													                                          ifelse(country$No_studies <= 500, 7, 
-                                                                       			ifelse(country$No_studies <= 600, 8, NA)))))))))
-country$No_studies_class <- factor(country$No_studies_class, 
-                            levels = seq(0, 8), 
-                            labels = c("0", "1-10", "11-50", "51-100", "101-200", "201-300", "301-400","401-500","501-600"))
-
-Fig2d <- ggplot() +
-geom_sf(data = country,  aes(fill= No_studies_class), color= ctry_border_color2, size = ctry_border_size,) +
-theme_bw()+
-scale_fill_viridis_d(name="Number of studies") +
-guides(fill = guide_legend(title.position="top", 
-                             title.hjust = 0.8,
-                             label.position = "right",
-                             ncol = 1)) +
-theme(axis.title = element_blank(),
-        panel.border = element_blank(),
-        legend.text = element_text(size=legend.text.size),
-        legend.background = legend.bg) +
-science_theme_fig2b +
-coord_sf()
-Fig2d
-# save
-ggsave(filename = paste0(dir,"/plots/Fig2d.png"),plot = Fig2d, width =7, height = 8, dpi = 300)
-#####################################################################################################################
-
-# Fig.2
-Fig2 <- Fig2a + Fig2b + Fig2c + Fig2d + plot_layout(ncol = 2, nrow = 2, 
-                 widths = c(1,1), heights = c(1.2, 1)) +
-                         plot_annotation(tag_levels = 'a', tag_suffix = ')')
-Fig2
-ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
-```
-
-# Figure
-```{r extended data figure 1: Correlation matrix}
-# subset data for only occurrence data
-occ_data <- subset(corr_matrix,data=="Occurrence")
-
-# collate variables to be tested
-# cordata <- occ_data %>% dplyr::select(access,humfoot,hum_mod,threat_sp,cum_hum_im,forloss,sp_rich,datadef_sp,elevation,TRI)
-
-cordata <- occ_data %>% dplyr::select(access,cum_hum_im,forloss,sp_rich,elevation,TRI)
-
-# check for collinearity
-cor <- round(cor(cordata,use="pairwise.complete.obs",method = "spearman"),1)
-
-# plot
-corplot <- ggcorrplot(cor, hc.order = TRUE,lab=TRUE,legend.title = "Correlation")+
-labs(fill='Correlation')+
-labs(x="",y="")+
-#scale_fill_viridis()+
-theme_bw()+
-theme(axis.text.x=element_text(size=20, angle=45, vjust=1, hjust=1, margin=margin(-3,0,0,0)),
-      axis.text.y=element_text(size=20, margin=margin(-3,0,0,0)),
-	text = element_text(size=20),
-	legend.text = element_text(size=12))
-science_theme_fig2c
-corplot
-
-# save plot
-ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"),plot = corplot, width = 10, height = 7, dpi = 300)
-
-```
-
-# Figure
-```{r extended data figure 2: random and available data distribution}
-# For continuous predictors
-# number of impacted species (cumulative human impact)
-num_sp_impacted <- ggplot(data_distribution ,aes(x=data,y= num_sp_imp, fill = data, colour = data))+
-theme_update(text = element_text(size=12))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = num_sp_imp),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-ylab("Number of impacted species")+
-xlab("")+
-coord_flip()+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution
-num_sp_impacted
-
-# access
-data_distribution$access_hrs <- 1/60*(data_distribution$access)
-access <- ggplot(data_distribution,aes(x=data,y= access_hrs, fill = data, colour = data))+
-theme_update(text = element_text(size=20))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = access_hrs),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-coord_flip()+
-ylim(0,300)+
-ylab("Accessibility (Travel time in hours)")+
-xlab("Data")+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution
-access
-
-# forest loss
-data_distribution$forlossSQ<- sqrt(data_distribution$forloss  )
-forloss <- ggplot(data_distribution,aes(x=data,y= forlossSQ, fill = data, colour = data))+
-theme_update(text = element_text(size=12))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = forlossSQ),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-ylab("Forest loss")+
-xlab("")+
-coord_flip()+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution
-forloss
-
-# TRI
-tri <- ggplot(data_distribution,aes(x=data,y= TRI, fill = data, colour = data))+
-theme_update(text = element_text(size=12))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = TRI),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-ylab("Terrain Ruggedness Index (meters)")+
-xlab("")+
-coord_flip()+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution;access
-tri
-
-# Elevation
-elevation <- ggplot(data_distribution,aes(x=data,y= elevation, fill = data, colour = data))+
-theme_update(text = element_text(size=12))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = elevation),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-ylab("Elevation (meters)")+
-xlab("")+
-coord_flip()+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution
-elevation
-
-#species richness
-sp_rich <- ggplot(data_distribution,aes(x=data,y= sp_rich, fill = data, colour = data))+
-theme_update(text = element_text(size=12))+
-geom_flat_violin(position = position_nudge(x = .25, y = 0),adjust =2, trim = TRUE, alpha=0.7,color="white")+
-geom_point(position = position_jitter(width = .23), size = .25,alpha=0.1, colour="grey")+
-geom_boxplot(aes(x = data, y = sp_rich),outlier.shape = NA, alpha = 0.3, width = .1, colour = "BLACK")+
-ylab("Terrestrial mammal species richness")+
-xlab("Data")+
-coord_flip()+
-guides(fill = FALSE, colour = FALSE) +
-scale_fill_manual(values = c("grey75","grey25"))+
-theme_bw()+
-science_theme_distribution
-sp_rich
-
-# save
-continuous <- ggarrange(sp_rich,num_sp_impacted,access,forloss,tri,elevation, ncol=2, nrow=3);continuous
-# continuous <- num_sp_impacted + sp_rich + access + forloss + tri + elevation
-#continuous <- (threat_sp|num_sp_impacted)/ (access|forloss)/ (tri|elevation)
-ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_continuous.png"),
-plot = continuous, width =14, height = 17, dpi = 300)
-
-# categorical predictors
-# Country income group
-income_tbl <- data_distribution %>% group_by(income) %>% tally(); income_tbl
-income <- table(income=data_distribution$income, data=data_distribution$data);income
-
-#calculating percentage of points per each country income group
-available_High= 14065/41936*100;available_High
-available_Upper_middle=17197/41936*100;available_Upper_middle
-available_Lower_middle= 5803/41936*100;available_Lower_middle
-available_Low= 4871/41936*100;available_Low
-
-locations_High = 1332/3394*100;locations_High 
-locations_Upper_middle = 1363/3394*100;locations_Upper_middle
-locations_Lower_middle = 437/3394*100;locations_Lower_middle
-locations_Low = 262/3394*100;locations_Low 
-  
-# building data frame
-percent_income<- data.frame(Income =c("Group 1","Group 2","Group 3","Group 4"), 
-Data =c("Available","Available","Available","Available","Locations","Locations","Locations","Locations"), 
-percent=c(available_High,available_Upper_middle,available_Lower_middle,available_Low,
-locations_High ,locations_Upper_middle ,locations_Lower_middle ,locations_Low));percent_income
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_income)
-
-# the plot
-income <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Income)) +
-geom_bar(stat="identity",color="Black", alpha=0.5)+
-xlab("Data")+ylab("Percentage of locations")+
-theme(panel.grid.major.x=element_blank())+
-scale_fill_manual(values = c("grey90","grey70","grey50","grey30"), name= "Country income", labels=c("Group 1","Group 2","Group 3","Group 4"))+
-coord_flip()+
-theme_bw()+
-science_theme_distribution
-income
-
-# IFL
-ifl_tbl <- data_distribution %>% group_by(IFL) %>% tally(); ifl_tbl
-ifl <- table(ifl=data_distribution $IFL, data=data_distribution$data);ifl
-
-# Calculating number of points in IFL vs. non-IFL 
-available_yes= 3646/41937*100;available_yes
-location_yes=251/3395*100;location_yes
-available_no= 38291/41937*100;available_no
-location_no=3144/3395*100;location_no
-  
-# building dataframe
-percent_ifl <- data.frame(IFL=c("Yes","No"),
-                          Data =c("Available","Available","Locations","Locations"),
-                          percent=c(available_yes, available_no, location_yes, location_no));percent_ifl
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_ifl)
-
-# the plot
-ifl <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= IFL)) +
-geom_bar(stat="identity",color="Black",alpha=0.5)+
-xlab("")+ylab("Percentage of locations")+
-theme(panel.grid.major.x=element_blank())+
-coord_flip()+
-scale_fill_manual(values = c("grey75","grey25"), name= "IFL", labels=c("No","Yes"),guide = guide_legend(reverse = TRUE))+
-theme_bw()+
-science_theme_distribution
-ifl
-
-# WDPA
-wdpa_tbl <- data_distribution %>% group_by(protected) %>% tally(); wdpa_tbl
-wdpa <- table(wdpa = data_distribution$protected, data=data_distribution$data);wdpa
-
-# calculating the number of points in protected vs. un protected
-available_yes= 3587/41937*100;available_yes
-available_no= 38350/41937*100;available_no
-location_yes=986/3395*100;location_yes
-location_no=2409/3395*100;location_no
-  
-# building dataframe
-percent_wdpa <- data.frame(Protected =c("Yes","No"),
-                           Data =c("Available","Available","Locations","Locations"),
-                           percent=c(available_yes,available_no,location_yes,location_no));percent_wdpa
-
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_wdpa)
-
-# the plot
-wdpa <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Protected)) +
-geom_bar(stat="identity",color="Black",alpha=0.5)+
-xlab("")+ylab("")+
-theme(panel.grid.major.x=element_blank())+
-scale_fill_manual(values = c("grey75","grey25"), name= "IUCN PA", labels=c("No","Yes"),guide = guide_legend(reverse = TRUE))+
-coord_flip()+
-theme_bw()+
-science_theme_distribution
-wdpa
-
-# Biomes
-biomes_tbl <- data_distribution %>% group_by(biomes) %>% tally()%>% arrange(desc(biomes)); biomes_tbl
-biomes <- table(biomes=data_distribution$biomes, data=data_distribution$data);biomes
-
-# calculating the percentage of points per biome
-available_6= 4363/37681*100;available_6
-available_13= 7538/37681*100;available_13
-available_9 = 334/37681*100;available_9
-available_14 = 93/37681*100;available_14
-available_12 =953/37681*100;available_12
-available_10 =1383/37681*100;available_10
-available_4	=3530/37681*100;available_4
-available_5	=1076/37681*100;available_5
-available_8	=3032/37681*100;available_8
-available_3=184/37681*100;available_3
-available_2=1105/37681*100;available_2
-available_7=6127/37681*100;available_7
-available_1 =5563/37681*100;available_1
-available_11=2400/37681*100;available_11
-
-locations_6= 31/3366*100;locations_6
-locations_13= 218/3366*100;locations_13
-locations_9= 36/3366*100;locations_9
-locations_14= 41/3366*100;locations_14
-locations_12 =228/3366*100;locations_12
-locations_10 =82/3366*100;locations_10
-locations_4	=711/3366*100;locations_4
-locations_5	=183/3366*100;locations_5
-locations_8	=188/3366*100;locations_8
-locations_3 =73/3366*100;locations_3
-locations_2=169/3366*100;locations_2
-locations_7=311/3366*100;locations_7
-locations_1 =1075/3366*100;locations_1 
-locations_11=20/3366*100;locations_11
-
-# Building the dataframe
-percent_biomes <- data.frame(Biomes =c("Biome 1",
-                                       "Biome 2",
-                                       "Biome 3",
-                                       "Biome 4",
-                                       "Biome 5",
-                                       "Biome 6",
-                                       "Biome 7",
-                                       "Biome 8",
-                                       "Biome 4",
-                                       "Biome 10",
-                                       "Biome 11",
-                                       "Biome 12",
-                                       "Biome 13",
-                                       "Biome 14"), 
-                             Data=c("Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Available",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations",
-                                    "Locations"), 
-      percent=c(available_1,
- 						   available_2,
-						   available_3,
-						   available_4,
-						   available_5,
-						   available_6,
-						   available_7,
-						   available_8,
-						   available_9,
-						   available_10,
-   						 available_11,
- 						   available_12,
-						   available_13,
-						   available_14,
-						   locations_1,
-						   locations_2,
-						   locations_3,
-						   locations_4,
-					     locations_5,
-						   locations_6,
-						   locations_7,
-               locations_8,
-						   locations_9,
-					     locations_10,
-						   locations_11,
-					     locations_12,
-					     locations_13,
-              locations_14));percent_biomes
-# as a matrix
-dataframe <- as.data.frame.matrix(percent_biomes)
-
-# the plot
-dataframe$Biomes <- factor(dataframe$Biomes, levels = c("Biome 1","Biome 2","Biome 3","Biome 4","Biome 5","Biome 6","Biome 7","Biome 8", "Biome 9","Biome 10","Biome 11","Biome 12","Biome 13","Biome 14"))
-biomes <- ggplot(data=dataframe, aes(x=Data, y=percent, fill= Biomes)) +
-geom_bar(stat="identity",color="Black", alpha=0.8)+
-labs(fill="Biomes")+
-xlab("Data")+ylab("Percentage of locations")+
-theme(panel.grid.major.x=element_blank())+
-scale_fill_viridis(discrete = TRUE,option = "E")+
-coord_flip()+
-science_theme_distribution
-biomes
-
-# save
-categorical2 <- biomes + wdpa + income + ifl
-ggsave(filename = paste0(dir,"/plots/ExTFig2_distribution_categoricalF.png"),
-plot = categorical2, width =15, height = 9, dpi = 300)
-```
 
 # Figure
 ```{r extended data figure 3: Response curves for the predictors}
