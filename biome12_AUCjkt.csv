@@ -1,0 +1,21 @@
+"","driver","Jacknife","AUC"
+"1","Accessibility","Without driver",0.7769
+"2","Number of impacted species","Without driver",0.7954
+"3","Elevation","Without driver",0.8058
+"4","Forest loss","Without driver",0.8016
+"5","Intact Forest Landscape","Without driver",0.8066
+"6","Country income group","Without driver",0.7713
+"7","Terrestrial mammal species richness","Without driver",0.7978
+"8","Terrain Ruggedness Index","Without driver",0.8046
+"9","IUCN protected area","Without driver",0.7892
+"10","With all drivers","With all drivers",0.8068
+"11","Accessibility","With only driver",0.6558
+"12","Number of impacted species","With only driver",0.5039
+"13","Elevation","With only driver",0.5
+"14","Forest loss","With only driver",0.6261
+"15","Intact Forest Landscape","With only driver",0.504
+"16","Country income group","With only driver",0.6162
+"17","Terrestrial mammal species richness","With only driver",0.6699
+"18","Terrain Ruggedness Index","With only driver",0.6301
+"19","IUCN protected area","With only driver",0.5527
+"20","With all drivers","With all drivers",0.8068
