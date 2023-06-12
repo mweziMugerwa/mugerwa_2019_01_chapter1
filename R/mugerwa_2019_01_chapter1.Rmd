@@ -39,7 +39,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Chunk options (checked)
+# Chunk options
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
                       fig.with=9, fig.height=6,dpi=300,
@@ -65,13 +65,13 @@ knitr::opts_chunk$set(echo=TRUE, warning=TRUE, message = TRUE,
 # path = "D:/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/")
 ```
 
-# Setup: cleaning memory (checked)
+# Setup: cleaning memory
 ```{r cleaning memory}
 rm(list=ls())
 gc()
 ```
 
-# Setup: installing packages (Checked)
+# Setup: installing packages
 ```{r package installation}
 # install.packages("maps")
 # install.packages("classInt")
@@ -123,7 +123,7 @@ gc()
 # install.packages("patchwork")
 ```
 
-# Setup: loading packages (checked)
+# Setup: loading packages
 ```{r package loading}
 # find folder to put the maxent.jar
 # system.file("java", package="dismo")
@@ -186,7 +186,7 @@ library(reshape2)
 library(car)
 ```
 
-# Setup: projections and functions (checked)
+# Setup: projections and functions
 ```{r required functions}
 # Projections and extents
 crs_equal_earth <- 8857 # Equal Earth 
@@ -525,14 +525,14 @@ assign(
 )
 ```
 
-# Setup: setting working directory (checked)
+# Setup: setting working directory
 ```{r working directory}
 # set working directory
-dir = "~/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
-dir = "D:/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
+# dir = "~/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
+# dir = "D:/BioDivCloud/Mwezi_B_Mugerwa/IMac/IZW/my_PhD/mugerwa_2019_01_chapter1/"
 ```
 
-# Data: shapefiles,.csv tables, and rasters (checked)
+# Data: shapefiles,.csv tables, and rasters
 ```{r}
 # shape files
 world <- st_read(paste0(dir,"/output/geo-proc/shp/ne_10m_admin_0_countries.shp"))
@@ -632,12 +632,12 @@ PI_biome7 <- read.csv(paste0(dir,"/output/models/biome7/biome7_PI.csv"))
 PI_biome12 <- read.csv(paste0(dir,"/output/models/biome12/biome12_PI.csv"))
 PI_biome4 <- read.csv(paste0(dir,"/output/models/biome4/biome4_PI.csv"))
 
-# Percent disparity
+# Percent of locations in the different disparity quintiles
 Biome_disparity <- read.csv(paste0(dir,"/output/geo-proc/biv-maps/biodcrisis/percent_disparity.csv"))
 ```
 
-# Figure S1 (correlation matrix: Testing collinearity among predictors) (checked)
-```{r extended data figure 1: Correlation matrix}
+# Figure S1 (correlation matrix: Testing collinearity among predictors)
+```{r Figure S1: Correlation matrix}
 # subset data for only occurrence data
 occ_data <- subset(corr_matrix,data=="Occurrence"); length(occ_data$fid)
 names(occ_data)
@@ -671,8 +671,8 @@ corplot
 # ggsave(filename = paste0(dir,"/plots/Spearman_cormatrixFinal.png"),plot = corplot, width = 10, height = 7, dpi = 300)
 ```
 
-# Figure S2 (Visualising distribution of avialable vs. locations) (checked)
-```{r data distribution between available vs. locations }
+# Figure S2 (Visualising distribution of avialable vs. locations)
+```{r Figure S2: data distribution between available vs. locations }
 # load in occurrence and available points
 avail_locs <-  data_distribution_continuous;str(avail_locs);names(avail_locs)
 
@@ -850,7 +850,7 @@ categorical_graphs
 #plot = categorical2, width =15, height = 9, dpi = 300)
 ```
 
-# Figure 2 (checked)
+# Figure 2
 ```{r Number of studies, echo=TRUE}
 # Fig.2a
 Fig2a <- ggplot() +
@@ -971,7 +971,7 @@ Fig2
 ggsave(filename = paste0(dir,"/plots/Fig2.png"), plot = Fig2, width = 20, height = 12, dpi = 600)
 ```
 
-# Generate background points for use in the maxent models (checked)
+# Generate background points for use in the maxent models
 ```{r generating background points}
 # create raster stacks for different models; global, biome 1, 7, 12 and 4
 
@@ -998,10 +998,9 @@ bgBiome12 <- fastRandomPoints(predictorsBiome12, 10000)
 bgBiome4 <- fastRandomPoints(predictorsBiome4, 10000)
 ```
 
-# Model evaluation (checked)
+# Model evaluation
 ```{r model evaluation with ENMevaluate}
 # We use function ENMevaluate that allows us to objectively select what model settings to use when running MaxEnt
-# run the evaluation: This run uses the "randomkfold" method of cross-validation and 10 cross-validation folds. 
 
 # Global
 enmevalGL <- ENMevaluate(global_locs, predictorsGL, method="randomkfold", kfolds = 5, n.bg=10000, categoricals=c(4,5,7,8), algorithm='maxent.jar')
@@ -1027,11 +1026,9 @@ write.csv(enmevalBiome12@results, paste0(dir,"/results/After_2000/Final/Tables/e
 enmevalBiome4 <- ENMevaluate(biome4_locs, predictorsBiome4, method="randomkfold", kfolds = 5, n.bg=bgBiome4, categoricals=c(4,6,7), algorithm='maxent.jar')
 enmevalBiome4@results
 write.csv(enmevalBiome4@results, paste0(dir,"/results/After_2000/Final/Tables/enmevalBiome4_results.csv"))
-
-# IMPORTANT; We don't use bias files for our modeling. This is because bias files  account for spatial bias in the occurrence points. The assumption is that where our presence points are places that are easier to sample. The bias file allows background points or the pseudo absence points to be generated preferentially from areas with the highest density of presence points such that the absence points are near the presence points. But it is this bias we are trying to measure- the bias in the camera trap locations, so no need to correct for sampling bias. 
 ```
 
-# Dividing occurrence data into training and testing sets for MaxEnt modelling (Checked)
+# Dividing occurrence data into training and testing sets for MaxEnt modelling
 ```{r training and testing sets}
 # Withholding a 20% sample for testing and 80% for training the model.
 # Global
@@ -1066,7 +1063,7 @@ occtest_biome4 <- biome4_locs[fold_biome4 == 1,]
 occtrain_biome4 <- biome4_locs[fold_biome4 != 1,]
 ```
 
-#  Global maxent (checked)
+#  Global maxent
 ```{r Global MaxEnt}
 # fit model
 global <- maxent(predictorsGL, occtrain_global,a=bgGL,removeDuplicates=TRUE,factors=c("global_biomes","global_iucn_wdpa","global_ifl","global_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true', 'quadratic=true', 'product=true', 'threshold=true', 'hinge=true', 'maximumiterations=5000','betamultiplier=1.5','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=false'),path=paste0(dir,"/output/models/global"));global
@@ -1312,7 +1309,7 @@ global_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure2D_Global_PredictionLegend.png"),plot = global_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
-# Biome1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt (checked)
+# Biome1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt
 ```{r biome 1 maxent}
 # fit model
 biome1 <- maxent(predictorsBiome1,occtrain_biome1,a=bgBiome1,removeDuplicates=TRUE,factors=c("biome1_ifl","biome1_iucn_wdpa","biome1_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true', 'quadratic=true','hinge=true','product=true','threshold=true','maximumiterations=5000','betamultiplier=3','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=false'),path=paste0(dir,"/output/models/biome1b"));biome1
@@ -1546,7 +1543,7 @@ biome1_prediction_plot
 ggsave(filename = paste0(dir,"/plots/Figure3A1_Biome1_PredictionLegend.png"),plot = biome1_prediction_plot, width =10, height = 7, dpi = 300)
 ```
 
-# Biome7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt (checked)
+# Biome7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt
 ```{r biome 7 maxent}
 # fit model
 biome7 <- maxent(predictorsBiome7, occtrain_biome7,a=bgBiome7,removeDuplicates=TRUE,factors=c("biome7_ifl","biome7_iucn_wdpa","biome7_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true','maximumiterations=5000','betamultiplier=3.5','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=false'),path=paste0(dir,"/output/models/biome7"));biome7
@@ -1777,7 +1774,7 @@ biome7_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A3_Biome7_PredictionLegend.png"),plot = biome7_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
-# Biomes12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt (checked)
+# Biomes12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt
 ```{r biome 12 maxent}
 # fit model:
 biome12 <- maxent(predictorsBiome12, occtrain_biome12,a=bgBiome12,removeDuplicates=TRUE,factors=c("biome7_ifl","biome7_iucn_wdpa","biome7_country_income_group"), args = c('linear=true', 'quadratic=true', 'product=true', 'threshold=true', 'hinge=true','jackknife=true','outputformat=Logistic','betamultiplier=3.5','maximumiterations=5000','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=false'),path=paste0(dir,"/output/models/biome12"));biome12
@@ -2004,7 +2001,7 @@ biome12_prediction_legend
 ggsave(filename = paste0(dir,"/plots/Figure4A4_Biome12_PredictionLegend.png"),plot = biome12_prediction_legend, width =10, height = 7, dpi = 300)
 ```
 
-# Biome4 (Temperate Broadleaf & Mixed Forests) MaxEnt (checked)
+# Biome4 (Temperate Broadleaf & Mixed Forests) MaxEnt
 ```{r biome 4 maxent}
 biome4 <- maxent(predictorsBiome4,occtrain_biome4,a=bgBiome4,removeDuplicates=TRUE,factors=c("biome4_ifl","biome4_iucn_wdpa","biome4_country_income_group"), args = c('jackknife=true','outputformat=Logistic','linear=true','maximumiterations=5000','betamultiplier=4.0','replicates=10','replicatetype=Crossvalidate','responsecurves','writeplotdata=true','doclamp=FALSE'),path=paste0(dir,"/output/models/biome4"));biome4
 
@@ -2412,7 +2409,7 @@ AUCjkt
 ggsave(filename = paste0(dir,"/plots/ExTFig4_Jackknifes.png"), plot = AUCjkt, width = 13, height = 13, dpi = 300)
 ```
 
-# Creating a Defaunation risk map: Biome 1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt (checked)
+# Creating a Defaunation risk map: Biome 1 (Tropical & Subtropical Moist Broadleaf Forests)
 ```{r biome 1 Defaunation risk map' map}
 # normalize covariates
 cum_hum_impactBiome1_norm <- normalizeRaster(biome1_cum_hum_impact)
@@ -2437,7 +2434,7 @@ biodcrisisbiome1_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome
 plot(biodcrisisbiome1_ee)
 ```
 
-# Creating a Defaunation risk map: Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt (checked)
+# Creating a Defaunation risk map: Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs)
 ```{r biome 7 Defaunation risk map' map}
 # normalize covariates
 cum_hum_impactBiome7_norm <- normalizeRaster(biome7_cum_hum_impact)
@@ -2462,7 +2459,7 @@ biodcrisisbiome7_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome
 plot(biodcrisisbiome7_ee)
 ```
 
-# Creating a Defaunation risk map: Biome 12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt (checked)
+# Creating a Defaunation risk map: Biome 12 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 12 Defaunation risk map' map}
 # normalize covariates
 cum_hum_impactBiome12_norm <- normalizeRaster(biome12_cum_hum_impact)
@@ -2487,7 +2484,7 @@ biodcrisisbiome12_ee <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biom
 plot(biodcrisisbiome12_ee)
 ```
 
-# Creating a Defaunation risk map: Biome 4 (Temperate Broadleaf & Mixed Forests) MaxEnt (checked)
+# Creating a Defaunation risk map: Biome 4 (Temperate Broadleaf & Mixed Forests)
 ```{r biome 4 Defaunation risk map' map}
 # normalize covariates
 cum_hum_impactBiome4_norm <- normalizeRaster(biome4_cum_hum_impact)
@@ -2754,7 +2751,7 @@ ggsave(filename = paste0(dir,"/plots/ExTFigure5_biome4_violin.png"),
 plot = biome4_aichi_plot, width =10, height = 7, dpi = 300)
 ```
 
-# Creating a bivariate map: Biome 1 (Tropical & Subtropical Moist Broadleaf Forests) MaxEnt (checked)
+# Creating a bivariate map: Biome 1 (Tropical & Subtropical Moist Broadleaf Forests)
 ```{r biome 1 bivariate plots + with scatter}
 # load in the Biome1 Defaunation risk map
 aichi_map_tif1<- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome1aichi_mapFinalTEST.tif"))
@@ -2869,7 +2866,7 @@ p3
 ggsave(filename = paste0(dir,"/plots/Fig5f_matrix_scatter.png"), plot = p3, width = 7, height = 5, dpi = 300)
 ```
 
-# Creating a bivariate map: Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs) MaxEnt (checked)
+# Creating a bivariate map: Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs)
 ```{r biome 7 bivariate plots + with scatter}
 # load in the Biome7 Defaunation risk map
 aichi_map_tif7<- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome7aichi_mapFinal.tif"))
@@ -2983,7 +2980,7 @@ p4
 ggsave(filename = paste0(dir,"/plots/Fig5i_matrix_scatter.png"), plot = p4, width = 7, height = 5, dpi = 300)
 ```
 
-# Creating a bivariate map: Biome 12 (Mediterranean Forests, Woodlands & Scrub) MaxEnt (checked)
+# Creating a bivariate map: Biome 12 (Mediterranean Forests, Woodlands & Scrub)
 ```{r biome 12 bivariate plots + with scatter}
 # load in the Biome12 Defaunation risk map
 aichi_map_tif12<- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome12aichi_mapFinal.tif"))
@@ -3097,7 +3094,7 @@ p5
 ggsave(filename = paste0(dir,"/plots/Fig5l_matrix_scatter.png"), plot = p5, width = 7, height = 5, dpi = 300)
 ```
 
-# Creating a bivariate map: Biome 4 (Temperate Broadleaf & Mixed Forests) MaxEnt (checked)
+# Creating a bivariate map: Biome 4 (Temperate Broadleaf & Mixed Forests)
 ```{r biome 4 bivariate plots + with scatter}
 # load in the Biome4 Defaunation risk map
 aichi_map_tif4<- raster(paste0(dir,"/output/geo-proc/aichi-maps/Biome4aichi_mapFinal.tif"))
@@ -3215,24 +3212,6 @@ p6
 
 # save
 ggsave(filename = paste0(dir,"/plots/Fig5o_matrix_scatter.png"), plot = p6, width = 7, height = 5, dpi = 300)
-```
-
-# Percent of locations in the different Defaunation risk map quintiles for all biomes (checked)
-```{r percent of locs and Defaunation risk map)}
-# as a matrix
-dataframe <- as.data.frame.matrix(Biome_disparity)
-
-# the plot
-biomes_biodcrisis_quintiles <- ggplot(data=dataframe, aes(x=Biomes,y=percent, fill= factor(Quintiles))) +
-geom_bar(stat="identity",color="white", alpha=0.95,position = position_fill(reverse = TRUE))+
-labs(fill="Quintiles")+
-xlab("Most researched biomes")+ylab("Proportion of locations")+
-theme_bw()+
-scale_fill_manual(values = c("#E5E5E5","#EBBDAC","#F29674","#F86E3C","#FF4704","#E5E5E5"))+
-coord_flip()+
-science_theme_distribution_diparity
-biomes_biodcrisis_quintiles
-ggsave(filename = paste0(dir,"/plots/locs_biomes_biodcrisis_disparity.png"), plot = biomes_biodcrisis_quintiles, width = 9, height = 5, dpi = 300)
 ```
 
 # Figure 5
@@ -3413,6 +3392,21 @@ biome4_inset_ee_v2
 ggsave(filename = paste0(dir,"/plots/Figure.5_biome4.png"), plot = biome4_inset_ee_v2
 , dpi = 300)
 
+# Percent of locations in the different Defaunation risk map quintiles for all biomes
+# as a matrix
+dataframe <- as.data.frame.matrix(Biome_disparity)
+
+# the plot
+biomes_biodcrisis_quintiles <- ggplot(data=dataframe, aes(x=Biomes,y=percent, fill= factor(Quintiles))) +
+geom_bar(stat="identity",color="white", alpha=0.95,position = position_fill(reverse = TRUE))+
+labs(fill="Quintiles")+
+xlab("Most researched biomes")+ylab("Proportion of locations")+
+theme_bw()+
+scale_fill_manual(values = c("#E5E5E5","#EBBDAC","#F29674","#F86E3C","#FF4704","#E5E5E5"))+
+coord_flip()+
+science_theme_distribution_diparity
+biomes_biodcrisis_quintiles
+ggsave(filename = paste0(dir,"/plots/locs_biomes_biodcrisis_disparity.png"), plot = biomes_biodcrisis_quintiles, width = 9, height = 5, dpi = 300)
 ```
 
 # SessionInfo ## DO NOT REMOVE!
