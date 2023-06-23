@@ -2410,7 +2410,7 @@ ggsave(filename = paste0(dir,"/plots/ExTFig4_Jackknifes.png"), plot = AUCjkt, wi
 ```
 
 # Creating a Defaunation risk map: Biome 1 (Tropical & Subtropical Moist Broadleaf Forests)
-```{r biome 1 Defaunation risk map' map}
+```{r biome 1 Defaunation risk map}
 # normalize covariates
 cum_hum_impactBiome1_norm <- normalizeRaster(biome1_cum_hum_impact)
 for_lossBiome1_norm <- normalizeRaster(biome1_forloss)
@@ -2419,11 +2419,18 @@ sp_richBiome1_norm <- normalizeRaster(biome1_sp_rich)
 # create Defaunation risk map covariate raster stack
 biodcrisis_covs_norm_biome1 <- stack(cum_hum_impactBiome1_norm,for_lossBiome1_norm,sp_richBiome1_norm)
 
-# write the weighted raster as the “Defaunation risk map"
+# now add here the weights
+weights <- c(1,1,1)
+
+# calculate weighted mean on the stack
+biodcrisis_map_biome1 <- weighted.mean(x = biodcrisis_covs_norm_biome1, w = weights)
+plot(biodcrisis_map_biome1)
+
+# write the weighted raster as the “defaunation risk map"
 writeRaster(biodcrisis_covs_norm_biome1,filename = paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome1biodcrisis_map.tif"))
 
 # load in the Biome1 Defaunation risk map
-biodcrisisbiome1_map_ras <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome1biodcrisis_map.tif"))
+biodcrisisbiome1_map_ras <- raster(paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome1biodcrisis_map_FinalEEExtMatch3.tif"))
 plot(biodcrisisbiome1_map_ras)
 
 # project and write raster
@@ -2435,7 +2442,7 @@ plot(biodcrisisbiome1_ee)
 ```
 
 # Creating a Defaunation risk map: Biome 7 (Tropical & Subtropical Grasslands, Savannah and Shrubs)
-```{r biome 7 Defaunation risk map' map}
+```{r biome 7 Defaunation risk map}
 # normalize covariates
 cum_hum_impactBiome7_norm <- normalizeRaster(biome7_cum_hum_impact)
 for_lossBiome7_norm <- normalizeRaster(biome7_forloss)
@@ -2444,7 +2451,13 @@ sp_richBiome7_norm <- normalizeRaster(biome7_sp_rich)
 # create Defaunation risk map covariate raster stack
 biodcrisis_covs_norm_biome7 <- stack(cum_hum_impactBiome7_norm,for_lossBiome7_norm,sp_richBiome7_norm)
 
-# write the weighted raster as the “Defaunation risk map"
+# now add here the weights
+weights <- c(1,1,1)
+
+# calculate weighted mean on the stack
+biodcrisis_map_biome7 <- weighted.mean(x = biodcrisis_covs_norm_biome7, w = weights)
+plot(biodcrisis_map_biome7)
+
 writeRaster(biodcrisis_covs_norm_biome7,filename = paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome7biodcrisis_map.tif"))
 
 # load in the Biome7 Defaunation risk map
@@ -2460,7 +2473,7 @@ plot(biodcrisisbiome7_ee)
 ```
 
 # Creating a Defaunation risk map: Biome 12 (Mediterranean Forests, Woodlands & Scrub)
-```{r biome 12 Defaunation risk map' map}
+```{r biome 12 Defaunation risk map}
 # normalize covariates
 cum_hum_impactBiome12_norm <- normalizeRaster(biome12_cum_hum_impact)
 for_lossBiome12_norm <- normalizeRaster(biome12_forloss)
@@ -2469,7 +2482,13 @@ sp_richBiome12_norm <- normalizeRaster(biome12_sp_rich)
 # create Defaunation risk map covariate raster stack
 biodcrisis_covs_norm_biome12 <- stack(cum_hum_impactBiome12_norm,for_lossBiome12_norm,sp_richBiome12_norm)
 
-# write the weighted raster as the “Defaunation risk map"
+# now add here the weights
+weights <- c(1,1,1)
+
+# calculate weighted mean on the stack
+biodcrisis_map_biome12 <- weighted.mean(x = biodcrisis_covs_norm_biome12, w = weights)
+plot(biodcrisis_map_biome12)
+
 writeRaster(biodcrisis_covs_norm_biome12,filename = paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome12biodcrisis_map.tif"))
 
 # load in the Biome12 Defaunation risk map
@@ -2485,7 +2504,7 @@ plot(biodcrisisbiome12_ee)
 ```
 
 # Creating a Defaunation risk map: Biome 4 (Temperate Broadleaf & Mixed Forests)
-```{r biome 4 Defaunation risk map' map}
+```{r biome 4 Defaunation risk map}
 # normalize covariates
 cum_hum_impactBiome4_norm <- normalizeRaster(biome4_cum_hum_impact)
 for_lossBiome4_norm <- normalizeRaster(biome4_forloss)
@@ -2494,7 +2513,13 @@ sp_richBiome4_norm <- normalizeRaster(biome4_sp_rich)
 # create Defaunation risk map covariate raster stack
 biodcrisis_covs_norm_biome4 <- stack(cum_hum_impactBiome4_norm,for_lossBiome4_norm,sp_richBiome4_norm)
 
-# write the weighted raster as the “Defaunation risk map"
+# now add here the weights
+weights <- c(1,1,1)
+
+# calculate weighted mean on the stack
+biodcrisis_map_biome4 <- weighted.mean(x = biodcrisis_covs_norm_biome4, w = weights)
+plot(biodcrisis_map_biome4)
+
 writeRaster(biodcrisis_covs_norm_biome4,filename = paste0(dir,"/output/geo-proc/biodcrisis-maps/Biome4biodcrisis_map.tif"))
 
 # load in the Biome4 Defaunation risk map
